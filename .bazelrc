@@ -5,6 +5,7 @@ build --tool_java_runtime_version=remotejdk_17
 
 build --@score_baselibs//score/json:base_library=nlohmann
 build --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
+build --@score_baselibs_rust//src/log:safety_level=qm
 
 # ToDo: needed for "wrong" implicit dependencies
 build --@score-baselibs//score/json:base_library=nlohmann

@@ -18,11 +18,16 @@ rust_binary(
     srcs = [
         "src/kvs_tool.rs",
     ],
+    crate_features = ["score-log"],
     crate_name = "rust_kvs_tool",
-    visibility = ["//visibility:public"],
-    deps = all_crate_deps(
-        normal = True,
-    ) + [
-        "//src/rust/rust_kvs",
+    rustc_flags = [
+        "-Clink-arg=-lstdc++",
+        "-Clink-arg=-lm",
+        "-Clink-arg=-lc",
     ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/rust/rust_kvs",
+        "@score_logging//src/rust/mw_log_subscriber",
+    ] + all_crate_deps(normal = True),
 )
