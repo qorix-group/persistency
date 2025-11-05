@@ -96,7 +96,7 @@ bazel_dep(name = "score_process", version = "1.1.0")
 bazel_dep(name = "score_cli_helper", version = "0.1.2")
 
 # Module deps
-bazel_dep(name = "score-baselibs", version = "0.0.0")
+bazel_dep(name = "score_baselibs", version = "0.1.2")
 
 ## additional settings / config
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
@@ -125,11 +125,12 @@ use_repo(crate, "score_persistency_crates")
 ## temporary overrides / tools
 # Testing utils dependency.
 # Direct usage of tag in git_override reports false problem in editor, using hash of a tag
-bazel_dep(name = "testing-utils")
+bazel_dep(name = "score_test_scenarios", dev_dependency = True)
 git_override(
-    module_name = "testing-utils",
-    commit = "a847c7464cfa47e000141631d1223b92560d2e58",  # tag v0.2.0
-    remote = "https://github.com/qorix-group/testing_tools.git",
+    module_name = "score_test_scenarios",
+    commit = "a2f9cded3deb636f5dc800bf7a47131487119721",  # tag v0.3.0
+    #commit = "a847c7464cfa47e000141631d1223b92560d2e58",  # tag v0.2.0
+    remote = "https://github.com/eclipse-score/testing_tools.git",
 )
 
 git_override(
@@ -138,18 +139,19 @@ git_override(
     remote = "https://github.com/eclipse-score/docs-as-code.git",
 )
 
-#bazel_dep on module 'rules_boost' has no version -> override needed
-archive_override(
-    module_name = "rules_boost",
-    strip_prefix = "rules_boost-master",
-    urls = ["https://github.com/nelhage/rules_boost/archive/refs/heads/master.tar.gz"],
-)
+# bazel_dep(name = "rules_boost")
+# # bazel_dep on module 'rules_boost' has no version -> override needed
+# archive_override(
+#     module_name = "rules_boost",
+#     strip_prefix = "rules_boost-master",
+#     urls = ["https://github.com/nelhage/rules_boost/archive/refs/heads/master.tar.gz"],
+# )
 
-git_override(
-    module_name = "score-baselibs",
-    commit = "46923f5c4f302bd9feae0261588687aaf32e3c5c",
-    remote = "https://github.com/eclipse-score/baselibs.git",
-)
+# git_override(
+#     module_name = "score-baselibs",
+#     commit = "46923f5c4f302bd9feae0261588687aaf32e3c5c",
+#     remote = "https://github.com/eclipse-score/baselibs.git",
+# )
 
 bazel_dep(name = "score_toolchains_rust", version = "0.1", dev_dependency = True)
 git_override(
