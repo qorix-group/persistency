@@ -112,11 +112,11 @@ use_repo(crate, "score_persistency_crates")
 ## temporary overrides / tools
 # Testing utils dependency.
 # Direct usage of tag in git_override reports false problem in editor, using hash of a tag
-bazel_dep(name = "testing-utils")
+bazel_dep(name = "score_test_scenarios", version = "0.3.0")
 git_override(
-    module_name = "testing-utils",
-    commit = "a847c7464cfa47e000141631d1223b92560d2e58",  # tag v0.2.0
-    remote = "https://github.com/qorix-group/testing_tools.git",
+    module_name = "score_test_scenarios",
+    commit = "a2f9cded3deb636f5dc800bf7a47131487119721",  # tag v0.3.0
+    remote = "https://github.com/eclipse-score/testing_tools.git",
 )
 
 # ToDo: `-`version needed still because of indirect dependency
