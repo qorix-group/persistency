@@ -8,7 +8,7 @@ from testing_utils import LogContainer, ScenarioResult
 
 from .common import CommonScenario, ResultCode, temp_dir_common
 
-pytestmark = pytest.mark.parametrize("version", ["rust"], scope="class")
+pytestmark = pytest.mark.parametrize("version", ["rust", "cpp"], scope="class")
 
 # Type tag and value pair.
 TaggedValue = tuple[str, Any]
@@ -52,8 +52,19 @@ class DefaultValuesScenario(CommonScenario):
     Common base implementation for default values tests.
     """
 
+
     def instance_id(self) -> int:
         return 1
+
+    def get_binary(self, version: str) -> str:
+        if version == "rust":
+            # Path to the Rust test binary
+            return "<rust_test_binary_path>"  # TODO: set actual path
+        elif version == "cpp":
+            # Path to the C++ test binary
+            return "../cpp_test_scenarios/bin/cpp_test_scenarios"  # Adjust as needed
+        else:
+            raise ValueError(f"Unknown version: {version}")
 
     @pytest.fixture(scope="class")
     def temp_dir(
@@ -107,9 +118,12 @@ class TestDefaultValues(DefaultValuesScenario):
     @pytest.fixture(scope="class")
     def defaults_file(self, temp_dir: Path, defaults: str) -> Path | None:
         assert defaults in ("optional", "required", "without")
+        # Always create the defaults file for 'optional' and 'required'.
+        # Only skip for 'without'.
         if defaults == "without":
             return None
-
+        # Defensive: ensure temp_dir exists
+        temp_dir.mkdir(parents=True, exist_ok=True)
         return create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
@@ -348,8 +362,8 @@ class TestResetAllKeys(DefaultValuesScenario):
     NUM_VALUES = 5
 
     @pytest.fixture(scope="class")
-    def scenario_name(self) -> str:
-        return "cit.default_values.reset_all_keys"
+    def scenario_name(self, version) -> str:
+            return "cit.default_values.reset_all_keys"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:
@@ -414,8 +428,8 @@ class TestResetSingleKey(DefaultValuesScenario):
     RESET_INDEX = 2
 
     @pytest.fixture(scope="class")
-    def scenario_name(self) -> str:
-        return "cit.default_values.reset_single_key"
+    def scenario_name(self, version) -> str:
+            return "cit.default_values.reset_single_key"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:
@@ -494,8 +508,8 @@ class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
     VALUE = 111.1
 
     @pytest.fixture(scope="class")
-    def scenario_name(self) -> str:
-        return "cit.default_values.checksum"
+    def scenario_name(self, version) -> str:
+            return "cit.default_values.checksum"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:
