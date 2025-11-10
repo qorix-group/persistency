@@ -24,8 +24,6 @@ extern "C" int process_value(int x) {
 }
 
 
-
-
 void print_scenarios(const ScenarioGroup::Ptr& group, const std::string& prefix = "") {
     std::string group_name = group->name();
     std::string new_prefix = prefix.empty() ? group_name : prefix + "." + group_name;
