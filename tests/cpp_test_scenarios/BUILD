@@ -18,6 +18,10 @@ cc_binary(
         "src/main.cpp",
         "src/test_basic.cpp",
         "src/test_basic.hpp",
+        "src/cit/test_default_values.cpp",
+        "src/cit/test_default_values.hpp",
+        "src/helpers/kvs_parameters.hpp",
+        "src/helpers/kvs_instance.hpp",
     ],
     copts = [
         "-g",
