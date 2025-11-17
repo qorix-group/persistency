@@ -8,7 +8,15 @@ from testing_utils import LogContainer, ScenarioResult
 
 from .common import CommonScenario, ResultCode, temp_dir_common
 
-pytestmark = pytest.mark.parametrize("version", ["rust", "cpp"], scope="class")
+import shutil
+import glob
+
+import logging
+
+import hashlib
+
+
+pytestmark = pytest.mark.parametrize("version", ["rust","cpp"], scope="class")
 
 # Type tag and value pair.
 TaggedValue = tuple[str, Any]
@@ -32,6 +40,7 @@ def create_defaults_file(
 ) -> Path:
     """
     Create file containing default values.
+
     """
     # Path to expected defaults file.
     # E.g., `/tmp/xyz/kvs_0_default.json`.
@@ -44,10 +53,20 @@ def create_defaults_file(
     with open(defaults_file_path, mode="w", encoding="UTF-8") as file:
         file.write(json_str)
 
+    # Hash the actual file contents (as C++ would)
+    hash_file_path = dir_path / f"kvs_{instance_id}_default.hash"
+    with open(defaults_file_path, "rb") as f:
+        file_bytes = f.read()
+    hash_value = hashlib.sha256(file_bytes).hexdigest()
+    with open(hash_file_path, mode="w", encoding="UTF-8") as hash_file:
+        #hash_file.write(hash_value)
+        hash_file.write(hash_value)
+
     return defaults_file_path
 
 
 class DefaultValuesScenario(CommonScenario):
+
     """
     Common base implementation for default values tests.
     """

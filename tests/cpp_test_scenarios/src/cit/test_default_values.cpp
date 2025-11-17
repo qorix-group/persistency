@@ -92,20 +92,12 @@ static void info_log(const std::string& key, const std::string& value_is_default
 
 std::string DefaultValuesScenario::name() const { return "default_values"; }
 void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
-    // TRACING_INFO( "[DEBUG] Entered DefaultValuesScenario::run",std::pair{std::string{"key"}, key} );
     using namespace score::mw::per::kvs;
     std::string key = "test_number";
-    TRACING_INFO(
-        "[DEBUG] About to call map_to_params",
-        std::pair{std::string{"key"}, key},
-        std::pair{std::string{"input"}, input ? *input : std::string{"<none>"}}
-    );
     auto params = map_to_params(*input);
-    std::cout << "[DEBUG] map_to_params done" << std::endl << std::flush;
-    std::cout << "[DEBUG] About to call kvs_instance" << std::endl << std::flush;
     auto kvs = kvs_instance(params);
-    std::cout << "[DEBUG] kvs_instance done" << std::endl << std::flush;
-    {
+    
+   {
         // First check: log initial state before any set_value
         auto get_default_result = kvs.get_default_value(key);
         auto get_value_result = kvs.get_value(key);
@@ -147,6 +139,8 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
         // Second check: log after set_value and flush
         // - value_is_default: Ok(true) if value == default, Ok(false) if not, Err(KeyNotFound) if default missing
         auto kvs = kvs_instance(params);
+        
+    
         auto get_default_result = kvs.get_default_value(key);
         auto get_value_result = kvs.get_value(key);
         std::string value_is_default = "Ok(false)";
@@ -156,19 +150,6 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
         bool get_value_ok = get_value_result.has_value();
         const KvsValue* def_val = get_default_ok ? &get_default_result.value() : nullptr;
         const KvsValue* cur_val = get_value_ok ? &get_value_result.value() : nullptr;
-        // Debug: print types and variant indices before accessing variant
-        if (cur_val) {
-            std::cout << "[DEBUG] cur_val type: " << static_cast<int>(cur_val->getType())
-                      << ", variant index: " << cur_val->getValue().index() << std::endl;
-        } else {
-            std::cout << "[DEBUG] cur_val is nullptr" << std::endl;
-        }
-        if (def_val) {
-            std::cout << "[DEBUG] def_val type: " << static_cast<int>(def_val->getType())
-                      << ", variant index: " << def_val->getValue().index() << std::endl;
-        } else {
-            std::cout << "[DEBUG] def_val is nullptr" << std::endl;
-        }
         // Defensive: check types before accessing variant
         if (!cur_val || !def_val) {
             // If either value is missing, skip variant access
@@ -180,11 +161,6 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
                     double d = std::get<double>(def_val->getValue());
                     if (v == d) value_is_default = "Ok(true)";
                 } catch (const std::bad_variant_access& e) {
-                    std::cerr << "[EXCEPTION] std::bad_variant_access in DefaultValuesScenario::run (second block): " << e.what() << std::endl;
-                    std::cerr << "[EXCEPTION] cur_val type: " << static_cast<int>(cur_val->getType())
-                              << ", variant index: " << cur_val->getValue().index() << std::endl;
-                    std::cerr << "[EXCEPTION] def_val type: " << static_cast<int>(def_val->getType())
-                              << ", variant index: " << def_val->getValue().index() << std::endl;
                     throw;
                 }
             }
@@ -197,8 +173,6 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
                 oss << std::fixed << std::get<double>(def_val->getValue());
                 default_value = "Ok(F64(" + oss.str() + "))";
             } catch (const std::bad_variant_access& e) {
-                std::cerr << "[EXCEPTION] std::bad_variant_access in DefaultValuesScenario::run (default_value, second block): " << e.what() << std::endl;
-                std::cerr << "[EXCEPTION] def_val type: " << static_cast<int>(def_val->getType()) << std::endl;
                 throw;
             }
         } else if (get_default_ok) {
@@ -214,8 +188,6 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
                 oss << std::fixed << std::get<double>(cur_val->getValue());
                 current_value = "Ok(F64(" + oss.str() + "))";
             } catch (const std::bad_variant_access& e) {
-                std::cerr << "[EXCEPTION] std::bad_variant_access in DefaultValuesScenario::run (current_value, second block): " << e.what() << std::endl;
-                std::cerr << "[EXCEPTION] cur_val type: " << static_cast<int>(cur_val->getType()) << std::endl;
                 throw;
             }
         } else if (get_value_ok) {
@@ -223,6 +195,7 @@ void DefaultValuesScenario::run(const std::optional<std::string>& input) const {
         } else {
             current_value = "Err(KeyNotFound)";
         }
+       
         info_log(key, value_is_default, default_value, current_value); // Log after set/flush
     }
             
@@ -234,6 +207,8 @@ void RemoveKeyScenario::run(const std::optional<std::string>& input) const {
     std::string key = "test_number";
     auto params = map_to_params(*input);
     auto kvs = kvs_instance(params);
+
+    
     auto get_default = kvs.get_default_value(key);
     auto get_value = kvs.get_value(key);
     std::string value_is_default;
@@ -311,8 +286,8 @@ void RemoveKeyScenario::run(const std::optional<std::string>& input) const {
     } else {
         current_value = "Err(KeyNotFound)";
     }
+   
     info_log(key, value_is_default, default_value, current_value); // Log after remove
-          //  info_log(key, "Ok(false)", "TTest", "Test");
 }
 
 std::string ResetAllKeysScenario::name() const { return "reset_all_keys"; }
@@ -321,6 +296,8 @@ void ResetAllKeysScenario::run(const std::optional<std::string>& input) const {
     int num_values = 5;
     auto params = map_to_params(*input);
     auto kvs = kvs_instance(params);
+
+    
     std::vector<std::pair<std::string, double>> key_values;
     for (int i = 0; i < num_values; ++i) {
         key_values.emplace_back("test_number_" + std::to_string(i), 123.4 * i);
@@ -400,9 +377,9 @@ void ResetAllKeysScenario::run(const std::optional<std::string>& input) const {
         } else {
             current_value = "Err(KeyNotFound)";
         }
+       
         info_log(key, value_is_default, "", current_value);
     }
-           // info_log("32", "Ok(false)", "TTest", "Test");
 }
 
 std::string ResetSingleKeyScenario::name() const { return "reset_single_key"; }
@@ -412,6 +389,8 @@ void ResetSingleKeyScenario::run(const std::optional<std::string>& input) const 
     int reset_index = 2;
     auto params = map_to_params(*input);
     auto kvs = kvs_instance(params);
+
+    
     std::vector<std::pair<std::string, double>> key_values;
     for (int i = 0; i < num_values; ++i) {
         key_values.emplace_back("test_number_" + std::to_string(i), 123.4 * i);
@@ -474,9 +453,9 @@ void ResetSingleKeyScenario::run(const std::optional<std::string>& input) const 
         } else {
             current_value = "Err(KeyNotFound)";
         }
+       
         info_log(key, value_is_default, "", current_value); // Log after reset
     }
-         //   info_log("34", "Ok(false)", "TTest", "Test");
 }
 
 std::string ChecksumScenario::name() const { return "checksum"; }
@@ -485,11 +464,8 @@ void ChecksumScenario::run(const std::optional<std::string>& input) const {
     auto params = map_to_params(*input);
     auto kvs = kvs_instance(params);
     kvs.flush();
-    auto kvs_path_result = kvs.get_kvs_filename(0);
-    auto hash_path_result = kvs.get_hash_filename(0);
-    std::string kvs_path = kvs_path_result ? static_cast<std::string>(kvs_path_result.value()) : "<error>";
-    std::string hash_path = hash_path_result ? static_cast<std::string>(hash_path_result.value()) : "<error>";
-    std::cout << "kvs_path=" << kvs_path << " hash_path=" << hash_path << std::endl;
+
+   
 }
 
 std::vector<std::shared_ptr<const Scenario>> get_default_value_scenarios() {
