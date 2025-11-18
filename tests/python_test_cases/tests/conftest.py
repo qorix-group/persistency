@@ -110,6 +110,17 @@ def pytest_html_results_table_row(report, cells):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    # Check for missing defaults file and print a warning if not found
+    test_config = item.funcargs.get("test_config", {})
+    defaults_path = None
+    if isinstance(test_config, dict):
+        kvs_params = test_config.get("kvs_parameters", {})
+        instance_id = kvs_params.get("instance_id")
+        dir_path = kvs_params.get("dir")
+        if instance_id is not None and dir_path is not None:
+            defaults_path = Path(dir_path) / f"kvs_{instance_id}_default.json"
+            if not defaults_path.exists():
+                print(f"[PYTEST WARNING] Defaults file missing: {defaults_path}", flush=True)
     # Extract TC's data
     outcome = yield
     report = outcome.get_result()

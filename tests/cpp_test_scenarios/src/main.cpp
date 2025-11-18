@@ -28,7 +28,7 @@ void print_scenarios(const ScenarioGroup::Ptr& group, const std::string& prefix 
     std::string group_name = group->name();
     std::string new_prefix = prefix.empty() ? group_name : prefix + "." + group_name;
     for (const auto& scenario : group->scenarios()) {
-        TRACING_INFO ("Available scenario: ",std::pair{std::string{"example_key"}, scenario->name()} );
+        TRACING_INFO ("Available scenario: ",std::pair{std::string{"scenario_name:"}, scenario->name()} );
     }
     for (const auto& subgroup : group->groups()) {
         print_scenarios(subgroup, new_prefix);
@@ -36,8 +36,6 @@ void print_scenarios(const ScenarioGroup::Ptr& group, const std::string& prefix 
 }
 
 int main(int argc, char** argv) {
-
-    // ...existing code...
     try {
         // If called with 3 arguments, treat as direct scenario invocation (for default_values)
         if (argc == 3) {
@@ -82,7 +80,9 @@ int main(int argc, char** argv) {
         ScenarioGroup::Ptr root_group{new ScenarioGroupImpl{"root", {}, {basic_group, cit_group}}};
 
         TestContext test_context{root_group};
-        print_scenarios(root_group);
+        // Debugging logs 
+        // print_scenarios(root_group);
+
         run_cli_app(raw_arguments, test_context);
     } catch (const std::exception& ex) {
         std::cerr << ex.what() << std::endl;

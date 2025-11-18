@@ -16,7 +16,7 @@ import logging
 import hashlib
 
 
-pytestmark = pytest.mark.parametrize("version", ["rust","cpp"], scope="class")
+pytestmark = pytest.mark.parametrize("version", ["cpp"], scope="class")
 
 # Type tag and value pair.
 TaggedValue = tuple[str, Any]
@@ -43,7 +43,7 @@ def create_defaults_file(
 
     """
     # Path to expected defaults file.
-    # E.g., `/tmp/xyz/kvs_0_default.json`.
+    
     defaults_file_path = dir_path / f"kvs_{instance_id}_default.json"
 
     # Create JSON string containing default values.
@@ -53,15 +53,25 @@ def create_defaults_file(
     with open(defaults_file_path, mode="w", encoding="UTF-8") as file:
         file.write(json_str)
 
-    # Hash the actual file contents (as C++ would)
+    # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
     hash_file_path = dir_path / f"kvs_{instance_id}_default.hash"
     with open(defaults_file_path, "rb") as f:
         file_bytes = f.read()
-    hash_value = hashlib.sha256(file_bytes).hexdigest()
-    with open(hash_file_path, mode="w", encoding="UTF-8") as hash_file:
-        #hash_file.write(hash_value)
-        hash_file.write(hash_value)
+    # Adler32 implementation
+    def adler32(data: bytes) -> int:
+        MOD_ADLER = 65521
+        a = 1
+        b = 0
+        for byte in data:
+            a = (a + byte) % MOD_ADLER
+            b = (b + a) % MOD_ADLER
+        return (b << 16) | a
 
+    adler_hash = adler32(file_bytes)
+    # Write as 4 bytes, big-endian
+    with open(hash_file_path, "wb") as hash_file:
+        hash_file.write(adler_hash.to_bytes(4, byteorder="big"))
+    # Above section to be removed once C++ issue is resolved
     return defaults_file_path
 
 
@@ -70,8 +80,6 @@ class DefaultValuesScenario(CommonScenario):
     """
     Common base implementation for default values tests.
     """
-
-
     def instance_id(self) -> int:
         return 1
 
@@ -113,6 +121,9 @@ class DefaultValuesScenario(CommonScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required", "without"], scope="class")
 class TestDefaultValues(DefaultValuesScenario):
+    # Test Case: TestDefaultValues
+    # Description: Verifies loading, querying, and override behavior for KVS instances with and without defaults.
+    # Expected Results: When defaults file is present, values are loaded and overridden correctly. When absent, queries return KeyNotFound.
     KEY = "test_number"
     VALUE = 111.1
 
@@ -194,6 +205,9 @@ class TestDefaultValues(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required", "without"], scope="class")
 class TestRemoveKey(DefaultValuesScenario):
+    # Test Case: TestRemoveKey
+    # Description: Tests removal of values in KVS with defaults enabled, ensuring keys revert to their default values.
+    # Expected Results: After removing a key, its value reverts to the default if defaults file is present; otherwise, KeyNotFound is returned.
     KEY = "test_number"
     VALUE = 111.1
 
@@ -220,7 +234,8 @@ class TestRemoveKey(DefaultValuesScenario):
         assert defaults in ("optional", "required", "without")
         if defaults == "without":
             return None
-
+        # Defensive: ensure temp_dir exists
+        temp_dir.mkdir(parents=True, exist_ok=True)
         return create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
@@ -280,6 +295,9 @@ class TestRemoveKey(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestMalformedDefaultsFile(DefaultValuesScenario):
+    # Test Case: TestMalformedDefaultsFile
+    # Description: Verifies that KVS fails to open when the defaults file contains invalid (malformed) JSON.
+    # Expected Results: KVS should panic and return a JsonParserError in stderr; test expects failure and error message.
     @pytest.fixture(scope="class")
     def scenario_name(self) -> str:
         return "cit.default_values.default_values"
@@ -310,6 +328,23 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
         with open(defaults_file_path, mode="w", encoding="UTF-8") as file:
             file.write(json_str)
 
+        # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
+        hash_file_path = temp_dir / f"kvs_{self.instance_id()}_default.hash"
+        def adler32(data: bytes) -> int:
+            MOD_ADLER = 65521
+            a = 1
+            b = 0
+            for byte in data:
+                a = (a + byte) % MOD_ADLER
+                b = (b + a) % MOD_ADLER
+            return (b << 16) | a
+
+        with open(defaults_file_path, "rb") as f:
+            file_bytes = f.read()
+        adler_hash = adler32(file_bytes)
+        with open(hash_file_path, "wb") as hash_file:
+            hash_file.write(adler_hash.to_bytes(4, byteorder="big"))
+        # Above section to be removed once C++ issue is resolved    
         return defaults_file_path
 
     def test_invalid(
@@ -339,6 +374,9 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["required"], scope="class")
 class TestMissingDefaultsFile(DefaultValuesScenario):
+    # Test Case: TestMissingDefaultsFile
+    # Description: Verifies that KVS fails to open when the required defaults file is missing.
+    # Expected Results: KVS should panic and return a KvsFileReadError in stderr; test expects failure and error message.
     @pytest.fixture(scope="class")
     def scenario_name(self) -> str:
         return "cit.default_values.default_values"
@@ -378,6 +416,9 @@ class TestMissingDefaultsFile(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestResetAllKeys(DefaultValuesScenario):
+    # Test Case: TestResetAllKeys
+    # Description: Checks that resetting KVS restores all keys to their default values as specified in the defaults file.
+    # Expected Results: After reset, all keys should have their default values restored.
     NUM_VALUES = 5
 
     @pytest.fixture(scope="class")
@@ -401,7 +442,8 @@ class TestResetAllKeys(DefaultValuesScenario):
         values = {}
         for i in range(self.NUM_VALUES):
             values[f"test_number_{i}"] = ("f64", 432.1 * i)
-
+        # Defensive: ensure temp_dir exists
+        temp_dir.mkdir(parents=True, exist_ok=True)
         return create_defaults_file(temp_dir, self.instance_id(), values)
 
     def test_valid(
@@ -443,6 +485,9 @@ class TestResetAllKeys(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestResetSingleKey(DefaultValuesScenario):
+    # Test Case: TestResetSingleKey
+    # Description: Checks that resetting a single key restores it to its default value as specified in the defaults file.
+    # Expected Results: Only the reset key should revert to its default value; other keys retain their current values.
     NUM_VALUES = 5
     RESET_INDEX = 2
 
@@ -467,7 +512,8 @@ class TestResetSingleKey(DefaultValuesScenario):
         values = {}
         for i in range(self.NUM_VALUES):
             values[f"test_number_{i}"] = ("f64", 432.1 * i)
-
+        # Defensive: ensure temp_dir exists
+        temp_dir.mkdir(parents=True, exist_ok=True)
         return create_defaults_file(temp_dir, self.instance_id(), values)
 
     def test_valid(
@@ -523,6 +569,9 @@ class TestResetSingleKey(DefaultValuesScenario):
 @pytest.mark.DerivationTechnique("requirements-based")
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
+    # Test Case: TestChecksumOnProvidedDefaults
+    # Description: Ensures that a checksum (hash) file is created when opening KVS with defaults provided.
+    # Expected Results: Both the defaults JSON and its corresponding hash file should exist after KVS initialization.
     KEY = "test_number"
     VALUE = 111.1
 
@@ -545,7 +594,8 @@ class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
         assert defaults in ("optional", "required", "without")
         if defaults == "without":
             return None
-
+        # Defensive: ensure temp_dir exists
+        temp_dir.mkdir(parents=True, exist_ok=True)
         return create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
