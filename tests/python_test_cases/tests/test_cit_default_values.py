@@ -16,7 +16,7 @@ import logging
 import hashlib
 
 
-pytestmark = pytest.mark.parametrize("version", ["cpp"], scope="class")
+pytestmark = pytest.mark.parametrize("version", ["rust", "cpp"], scope="class")
 
 # Type tag and value pair.
 TaggedValue = tuple[str, Any]
@@ -43,7 +43,7 @@ def create_defaults_file(
 
     """
     # Path to expected defaults file.
-    
+
     defaults_file_path = dir_path / f"kvs_{instance_id}_default.json"
 
     # Create JSON string containing default values.
@@ -57,6 +57,7 @@ def create_defaults_file(
     hash_file_path = dir_path / f"kvs_{instance_id}_default.hash"
     with open(defaults_file_path, "rb") as f:
         file_bytes = f.read()
+
     # Adler32 implementation
     def adler32(data: bytes) -> int:
         MOD_ADLER = 65521
@@ -76,10 +77,10 @@ def create_defaults_file(
 
 
 class DefaultValuesScenario(CommonScenario):
-
     """
     Common base implementation for default values tests.
     """
+
     def instance_id(self) -> int:
         return 1
 
@@ -330,6 +331,7 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
 
         # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
         hash_file_path = temp_dir / f"kvs_{self.instance_id()}_default.hash"
+
         def adler32(data: bytes) -> int:
             MOD_ADLER = 65521
             a = 1
@@ -344,7 +346,7 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
         adler_hash = adler32(file_bytes)
         with open(hash_file_path, "wb") as hash_file:
             hash_file.write(adler_hash.to_bytes(4, byteorder="big"))
-        # Above section to be removed once C++ issue is resolved    
+        # Above section to be removed once C++ issue is resolved
         return defaults_file_path
 
     def test_invalid(
@@ -423,7 +425,7 @@ class TestResetAllKeys(DefaultValuesScenario):
 
     @pytest.fixture(scope="class")
     def scenario_name(self, version) -> str:
-            return "cit.default_values.reset_all_keys"
+        return "cit.default_values.reset_all_keys"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:
@@ -459,16 +461,15 @@ class TestResetAllKeys(DefaultValuesScenario):
             logs = logs_info_level.get_logs("key", value=f"test_number_{i}")
 
             # Check values before set.
-            assert logs[0].value_is_default
-            assert logs[0].current_value == 432.1 * i
+            assert logs[0].value_is_default == "Ok(true)"
+            assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
 
             # Check values after set.
-            assert not logs[1].value_is_default
-            assert logs[1].current_value == 123.4 * i
-
+            assert logs[1].value_is_default == "Ok(false)"
+            assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
             # Check values after reset.
-            assert logs[2].value_is_default
-            assert logs[2].current_value == 432.1 * i
+            assert logs[2].value_is_default == "Ok(true)"
+            assert logs[2].current_value == f"Ok(F64({432.1 * i :.1f}))"
 
 
 @pytest.mark.PartiallyVerifies(
@@ -493,7 +494,7 @@ class TestResetSingleKey(DefaultValuesScenario):
 
     @pytest.fixture(scope="class")
     def scenario_name(self, version) -> str:
-            return "cit.default_values.reset_single_key"
+        return "cit.default_values.reset_single_key"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:
@@ -530,29 +531,27 @@ class TestResetSingleKey(DefaultValuesScenario):
 
             if i == self.RESET_INDEX:
                 # Check values before set.
-                assert logs[0].value_is_default
-                assert logs[0].current_value == 432.1 * i
+                assert logs[0].value_is_default == "Ok(true)"
+                assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
 
                 # Check values after set.
-                assert not logs[1].value_is_default
-                assert logs[1].current_value == 123.4 * i
+                assert logs[1].value_is_default == "Ok(false)"
+                assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
 
                 # Check values after reset.
-                assert logs[2].value_is_default
-                assert logs[2].current_value == 432.1 * i
-
+                assert logs[2].value_is_default == "Ok(true)"
+                assert logs[2].current_value == f"Ok(F64({432.1 * i :.1f}))"
             else:
                 # Check values before set.
-                assert logs[0].value_is_default
-                assert logs[0].current_value == 432.1 * i
-
+                assert logs[0].value_is_default == "Ok(true)"
+                assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
                 # Check values after set.
-                assert not logs[1].value_is_default
-                assert logs[1].current_value == 123.4 * i
+                assert logs[1].value_is_default == "Ok(false)"
+                assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
 
                 # Check values after reset.
-                assert not logs[2].value_is_default
-                assert logs[2].current_value == 123.4 * i
+                assert logs[2].value_is_default == "Ok(false)"
+                assert logs[2].current_value == f"Ok(F64({123.4 * i :.1f}))"
 
 
 @pytest.mark.PartiallyVerifies(
@@ -577,7 +576,7 @@ class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
 
     @pytest.fixture(scope="class")
     def scenario_name(self, version) -> str:
-            return "cit.default_values.checksum"
+        return "cit.default_values.checksum"
 
     @pytest.fixture(scope="class")
     def test_config(self, temp_dir: Path, defaults: str) -> dict[str, Any]:

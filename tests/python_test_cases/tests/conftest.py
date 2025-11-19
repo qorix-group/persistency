@@ -120,7 +120,10 @@ def pytest_runtest_makereport(item, call):
         if instance_id is not None and dir_path is not None:
             defaults_path = Path(dir_path) / f"kvs_{instance_id}_default.json"
             if not defaults_path.exists():
-                print(f"[PYTEST WARNING] Defaults file missing: {defaults_path}", flush=True)
+                print(
+                    f"[PYTEST WARNING] Defaults file missing: {defaults_path}",
+                    flush=True,
+                )
     # Extract TC's data
     outcome = yield
     report = outcome.get_result()
