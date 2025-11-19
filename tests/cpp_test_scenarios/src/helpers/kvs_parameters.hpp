@@ -5,6 +5,7 @@
 
 #include "score/json/json_parser.h"
 #include "score/json/json_writer.h"
+#include <fstream>
 #include <kvs.hpp>
 #include <kvsbuilder.hpp>
 #include <nlohmann/json.hpp>

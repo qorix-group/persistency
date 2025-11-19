@@ -8,18 +8,25 @@ from testing_utils import LogContainer, ScenarioResult
 
 from .common import CommonScenario, ResultCode, temp_dir_common
 
-import shutil
-import glob
-
-import logging
-
-import hashlib
-
-
 pytestmark = pytest.mark.parametrize("version", ["rust", "cpp"], scope="class")
+
 
 # Type tag and value pair.
 TaggedValue = tuple[str, Any]
+
+
+# TODO : Remove once the issue for C++ is resolved.
+def adler32(data: bytes) -> int:
+    """
+    Compute Adler-32 checksum for the given bytes.
+    """
+    MOD_ADLER = 65521
+    a = 1
+    b = 0
+    for byte in data:
+        a = (a + byte) % MOD_ADLER
+        b = (b + a) % MOD_ADLER
+    return (b << 16) | a
 
 
 def create_defaults_json(values: dict[str, TaggedValue]) -> str:
@@ -57,16 +64,6 @@ def create_defaults_file(
     hash_file_path = dir_path / f"kvs_{instance_id}_default.hash"
     with open(defaults_file_path, "rb") as f:
         file_bytes = f.read()
-
-    # Adler32 implementation
-    def adler32(data: bytes) -> int:
-        MOD_ADLER = 65521
-        a = 1
-        b = 0
-        for byte in data:
-            a = (a + byte) % MOD_ADLER
-            b = (b + a) % MOD_ADLER
-        return (b << 16) | a
 
     adler_hash = adler32(file_bytes)
     # Write as 4 bytes, big-endian
@@ -332,15 +329,6 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
         # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
         hash_file_path = temp_dir / f"kvs_{self.instance_id()}_default.hash"
 
-        def adler32(data: bytes) -> int:
-            MOD_ADLER = 65521
-            a = 1
-            b = 0
-            for byte in data:
-                a = (a + byte) % MOD_ADLER
-                b = (b + a) % MOD_ADLER
-            return (b << 16) | a
-
         with open(defaults_file_path, "rb") as f:
             file_bytes = f.read()
         adler_hash = adler32(file_bytes)
@@ -424,7 +412,7 @@ class TestResetAllKeys(DefaultValuesScenario):
     NUM_VALUES = 5
 
     @pytest.fixture(scope="class")
-    def scenario_name(self, version) -> str:
+    def scenario_name(self) -> str:
         return "cit.default_values.reset_all_keys"
 
     @pytest.fixture(scope="class")
@@ -493,7 +481,7 @@ class TestResetSingleKey(DefaultValuesScenario):
     RESET_INDEX = 2
 
     @pytest.fixture(scope="class")
-    def scenario_name(self, version) -> str:
+    def scenario_name(self) -> str:
         return "cit.default_values.reset_single_key"
 
     @pytest.fixture(scope="class")
@@ -575,7 +563,7 @@ class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
     VALUE = 111.1
 
     @pytest.fixture(scope="class")
-    def scenario_name(self, version) -> str:
+    def scenario_name(self) -> str:
         return "cit.default_values.checksum"
 
     @pytest.fixture(scope="class")

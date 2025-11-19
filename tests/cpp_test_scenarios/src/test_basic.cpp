@@ -56,9 +56,6 @@ std::string BasicScenario::name() const { return "basic"; }
 void BasicScenario::run(const std::optional<std::string> &input) const {
   using namespace score::mw::per::kvs;
 
-  // Print and parse parameters.
-  std::cerr << *input << std::endl;
-
   auto params{map_to_params(*input)};
 
   // Set builder parameters.

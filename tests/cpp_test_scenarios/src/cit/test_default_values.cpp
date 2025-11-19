@@ -25,6 +25,20 @@
 const std::string kTargetName{"cpp_test_scenarios::cit::default_values"};
 using score::mw::per::kvs::KvsValue;
 
+/**
+ * Helper to log key/value state in a format parsable by Python tests.
+ *
+ * @param key The key being queried or modified in the KVS.
+ * @param value_is_default String encoding whether the current value matches the
+ * default ("Ok(true)", "Ok(false)", or error string).
+ * @param default_value String encoding the default value for the key (e.g.,
+ * "Ok(F64(...))" or error string).
+ * @param current_value String encoding the current value for the key (e.g.,
+ * "Ok(F64(...))" or error string).
+ *
+ * This function emits logs in a structured format so that the Python test suite
+ * can parse and validate scenario output.
+ */
 static void info_log(const std::string &key,
                      const std::string &value_is_default,
                      const std::string &default_value,
@@ -37,138 +51,132 @@ static void info_log(const std::string &key,
 
 std::string DefaultValuesScenario::name() const { return "default_values"; }
 void DefaultValuesScenario::run(const std::optional<std::string> &input) const {
-  try {
-    using namespace score::mw::per::kvs;
-    std::string key = "test_number";
-    auto params = map_to_params(*input);
+  using namespace score::mw::per::kvs;
+  std::string key = "test_number";
+  auto params = map_to_params(*input);
+  auto kvs = kvs_instance(params);
+
+  {
+    // First check: log initial state before any set_value
+    auto get_default_result = kvs.get_default_value(key);
+    auto get_value_result = kvs.get_value(key);
+    std::string value_is_default;
+    std::string default_value;
+    std::string current_value;
+    // Default value
+    if (!get_default_result.has_value() ||
+        get_default_result.value().getType() != KvsValue::Type::f64 ||
+        !std::holds_alternative<double>(
+            get_default_result.value().getValue())) {
+      default_value = "Err(KeyNotFound)";
+    } else {
+      std::ostringstream oss;
+      oss.precision(1);
+      oss << std::fixed
+          << std::get<double>(get_default_result.value().getValue());
+      default_value = "Ok(F64(" + oss.str() + "))";
+    }
+    // Current value
+    if (!get_value_result.has_value() ||
+        get_value_result.value().getType() != KvsValue::Type::f64 ||
+        !std::holds_alternative<double>(get_value_result.value().getValue())) {
+      current_value = "Err(KeyNotFound)";
+    } else {
+      std::ostringstream oss;
+      oss.precision(1);
+      oss << std::fixed
+          << std::get<double>(get_value_result.value().getValue());
+      current_value = "Ok(F64(" + oss.str() + "))";
+    }
+    // value_is_default
+    if (default_value == "Err(KeyNotFound)" ||
+        current_value == "Err(KeyNotFound)") {
+      value_is_default = "Err(KeyNotFound)";
+    } else if (std::abs(
+                   std::get<double>(get_default_result.value().getValue()) -
+                   std::get<double>(get_value_result.value().getValue())) <
+               1e-6) {
+      value_is_default = "Ok(true)";
+    } else {
+      value_is_default = "Ok(false)";
+    }
+    info_log(key, value_is_default, default_value, current_value);
+    auto set_result = kvs.set_value(key, KvsValue{432.1});
+    if (!set_result)
+      throw std::runtime_error("Failed to set value");
+    kvs.flush();
+  }
+  {
+    // Second check: log after set_value and flush
+    // - value_is_default: Ok(true) if value == default, Ok(false) if not,
+    // Err(KeyNotFound) if default missing
     auto kvs = kvs_instance(params);
 
-    {
-      // First check: log initial state before any set_value
-      auto get_default_result = kvs.get_default_value(key);
-      auto get_value_result = kvs.get_value(key);
-      std::string value_is_default;
-      std::string default_value;
-      std::string current_value;
-      // Default value
-      if (!get_default_result.has_value() ||
-          get_default_result.value().getType() != KvsValue::Type::f64 ||
-          !std::holds_alternative<double>(
-              get_default_result.value().getValue())) {
-        default_value = "Err(KeyNotFound)";
-      } else {
+    auto get_default_result = kvs.get_default_value(key);
+    auto get_value_result = kvs.get_value(key);
+    std::string value_is_default = "Ok(false)";
+    std::string default_value;
+    std::string current_value;
+    bool get_default_ok = get_default_result.has_value();
+    bool get_value_ok = get_value_result.has_value();
+    const KvsValue *def_val =
+        get_default_ok ? &get_default_result.value() : nullptr;
+    const KvsValue *cur_val =
+        get_value_ok ? &get_value_result.value() : nullptr;
+    // Defensive: check types before accessing variant
+    if (!cur_val || !def_val) {
+      // If either value is missing, skip variant access
+    } else {
+      bool both_f64 = cur_val->getType() == def_val->getType() &&
+                      cur_val->getType() == KvsValue::Type::f64;
+      if (both_f64) {
+        try {
+          double v = std::get<double>(cur_val->getValue());
+          double d = std::get<double>(def_val->getValue());
+          if (v == d)
+            value_is_default = "Ok(true)";
+        } catch (const std::bad_variant_access &e) {
+          throw;
+        }
+      }
+    }
+    // Format default_value for log
+    if (get_default_ok && def_val->getType() == KvsValue::Type::f64) {
+      try {
         std::ostringstream oss;
         oss.precision(1);
-        oss << std::fixed
-            << std::get<double>(get_default_result.value().getValue());
+        oss << std::fixed << std::get<double>(def_val->getValue());
         default_value = "Ok(F64(" + oss.str() + "))";
+      } catch (const std::bad_variant_access &e) {
+        throw;
       }
-      // Current value
-      if (!get_value_result.has_value() ||
-          get_value_result.value().getType() != KvsValue::Type::f64 ||
-          !std::holds_alternative<double>(
-              get_value_result.value().getValue())) {
-        current_value = "Err(KeyNotFound)";
-      } else {
+    } else if (get_default_ok) {
+      default_value = "Err(UnexpectedType:" +
+                      std::to_string(static_cast<int>(def_val->getType())) +
+                      ")";
+    } else {
+      default_value = "Err(KeyNotFound)";
+    }
+    // Format current_value for log
+    if (get_value_ok && cur_val->getType() == KvsValue::Type::f64) {
+      try {
         std::ostringstream oss;
         oss.precision(1);
-        oss << std::fixed
-            << std::get<double>(get_value_result.value().getValue());
+        oss << std::fixed << std::get<double>(cur_val->getValue());
         current_value = "Ok(F64(" + oss.str() + "))";
+      } catch (const std::bad_variant_access &e) {
+        throw;
       }
-      // value_is_default
-      if (default_value == "Err(KeyNotFound)" ||
-          current_value == "Err(KeyNotFound)") {
-        value_is_default = "Err(KeyNotFound)";
-      } else if (std::abs(
-                     std::get<double>(get_default_result.value().getValue()) -
-                     std::get<double>(get_value_result.value().getValue())) <
-                 1e-6) {
-        value_is_default = "Ok(true)";
-      } else {
-        value_is_default = "Ok(false)";
-      }
-      info_log(key, value_is_default, default_value, current_value);
-      auto set_result = kvs.set_value(key, KvsValue{432.1});
-      if (!set_result)
-        throw std::runtime_error("Failed to set value");
-      kvs.flush();
+    } else if (get_value_ok) {
+      current_value = "Err(UnexpectedType:" +
+                      std::to_string(static_cast<int>(cur_val->getType())) +
+                      ")";
+    } else {
+      current_value = "Err(KeyNotFound)";
     }
-    {
-      // Second check: log after set_value and flush
-      // - value_is_default: Ok(true) if value == default, Ok(false) if not,
-      // Err(KeyNotFound) if default missing
-      auto kvs = kvs_instance(params);
 
-      auto get_default_result = kvs.get_default_value(key);
-      auto get_value_result = kvs.get_value(key);
-      std::string value_is_default = "Ok(false)";
-      std::string default_value;
-      std::string current_value;
-      bool get_default_ok = get_default_result.has_value();
-      bool get_value_ok = get_value_result.has_value();
-      const KvsValue *def_val =
-          get_default_ok ? &get_default_result.value() : nullptr;
-      const KvsValue *cur_val =
-          get_value_ok ? &get_value_result.value() : nullptr;
-      // Defensive: check types before accessing variant
-      if (!cur_val || !def_val) {
-        // If either value is missing, skip variant access
-      } else {
-        bool both_f64 = cur_val->getType() == def_val->getType() &&
-                        cur_val->getType() == KvsValue::Type::f64;
-        if (both_f64) {
-          try {
-            double v = std::get<double>(cur_val->getValue());
-            double d = std::get<double>(def_val->getValue());
-            if (v == d)
-              value_is_default = "Ok(true)";
-          } catch (const std::bad_variant_access &e) {
-            throw;
-          }
-        }
-      }
-      // Format default_value for log
-      if (get_default_ok && def_val->getType() == KvsValue::Type::f64) {
-        try {
-          std::ostringstream oss;
-          oss.precision(1);
-          oss << std::fixed << std::get<double>(def_val->getValue());
-          default_value = "Ok(F64(" + oss.str() + "))";
-        } catch (const std::bad_variant_access &e) {
-          throw;
-        }
-      } else if (get_default_ok) {
-        default_value = "Err(UnexpectedType:" +
-                        std::to_string(static_cast<int>(def_val->getType())) +
-                        ")";
-      } else {
-        default_value = "Err(KeyNotFound)";
-      }
-      // Format current_value for log
-      if (get_value_ok && cur_val->getType() == KvsValue::Type::f64) {
-        try {
-          std::ostringstream oss;
-          oss.precision(1);
-          oss << std::fixed << std::get<double>(cur_val->getValue());
-          current_value = "Ok(F64(" + oss.str() + "))";
-        } catch (const std::bad_variant_access &e) {
-          throw;
-        }
-      } else if (get_value_ok) {
-        current_value = "Err(UnexpectedType:" +
-                        std::to_string(static_cast<int>(cur_val->getType())) +
-                        ")";
-      } else {
-        current_value = "Err(KeyNotFound)";
-      }
-
-      info_log(key, value_is_default, default_value,
-               current_value); // Log after set/flush
-    }
-  } catch (...) {
-    // Rethrow to propagate to main.cpp for proper error code mapping
-    throw;
+    info_log(key, value_is_default, default_value,
+             current_value); // Log after set/flush
   }
 }
 std::string RemoveKeyScenario::name() const { return "remove_key"; }
