@@ -11,9 +11,7 @@ cc_binary(
         "src/helpers/kvs_parameters.hpp",
         "src/helpers/kvs_instance.hpp",
     ],
-    copts = [
-        "-g",
-    ],
+    copts = ["-g"],
     visibility = ["//tests/python_test_cases:__pkg__"],
     deps = [
         "//src/cpp/src:kvs_cpp",
