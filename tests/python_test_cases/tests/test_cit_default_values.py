@@ -462,14 +462,14 @@ class TestResetAllKeys(DefaultValuesScenario):
 
             # Check values before set.
             assert logs[0].value_is_default == "Ok(true)"
-            assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
+            assert logs[0].current_value == f"Ok(F64({432.1 * i:.1f}))"
 
             # Check values after set.
             assert logs[1].value_is_default == "Ok(false)"
-            assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
+            assert logs[1].current_value == f"Ok(F64({123.4 * i:.1f}))"
             # Check values after reset.
             assert logs[2].value_is_default == "Ok(true)"
-            assert logs[2].current_value == f"Ok(F64({432.1 * i :.1f}))"
+            assert logs[2].current_value == f"Ok(F64({432.1 * i:.1f}))"
 
 
 @pytest.mark.PartiallyVerifies(
@@ -532,26 +532,26 @@ class TestResetSingleKey(DefaultValuesScenario):
             if i == self.RESET_INDEX:
                 # Check values before set.
                 assert logs[0].value_is_default == "Ok(true)"
-                assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
+                assert logs[0].current_value == f"Ok(F64({432.1 * i:.1f}))"
 
                 # Check values after set.
                 assert logs[1].value_is_default == "Ok(false)"
-                assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
+                assert logs[1].current_value == f"Ok(F64({123.4 * i:.1f}))"
 
                 # Check values after reset.
                 assert logs[2].value_is_default == "Ok(true)"
-                assert logs[2].current_value == f"Ok(F64({432.1 * i :.1f}))"
+                assert logs[2].current_value == f"Ok(F64({432.1 * i:.1f}))"
             else:
                 # Check values before set.
                 assert logs[0].value_is_default == "Ok(true)"
-                assert logs[0].current_value == f"Ok(F64({432.1 * i :.1f}))"
+                assert logs[0].current_value == f"Ok(F64({432.1 * i:.1f}))"
                 # Check values after set.
                 assert logs[1].value_is_default == "Ok(false)"
-                assert logs[1].current_value == f"Ok(F64({123.4 * i :.1f}))"
+                assert logs[1].current_value == f"Ok(F64({123.4 * i:.1f}))"
 
                 # Check values after reset.
                 assert logs[2].value_is_default == "Ok(false)"
-                assert logs[2].current_value == f"Ok(F64({123.4 * i :.1f}))"
+                assert logs[2].current_value == f"Ok(F64({123.4 * i:.1f}))"
 
 
 @pytest.mark.PartiallyVerifies(
