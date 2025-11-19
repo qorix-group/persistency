@@ -22,6 +22,8 @@
 #include <vector>
 
 // Helper to print info logs in a Python-parsable way
+
+constexpr double kFloatEpsilon = 1e-6;
 const std::string kTargetName{"cpp_test_scenarios::cit::default_values"};
 using score::mw::per::kvs::KvsValue;
 
@@ -95,7 +97,7 @@ void DefaultValuesScenario::run(const std::optional<std::string> &input) const {
     } else if (std::abs(
                    std::get<double>(get_default_result.value().getValue()) -
                    std::get<double>(get_value_result.value().getValue())) <
-               1e-6) {
+               kFloatEpsilon) {
       value_is_default = "Ok(true)";
     } else {
       value_is_default = "Ok(false)";
@@ -133,7 +135,7 @@ void DefaultValuesScenario::run(const std::optional<std::string> &input) const {
         try {
           double v = std::get<double>(cur_val->getValue());
           double d = std::get<double>(def_val->getValue());
-          if (v == d)
+          if (std::abs(v - d) < kFloatEpsilon)
             value_is_default = "Ok(true)";
         } catch (const std::bad_variant_access &e) {
           throw;
@@ -216,7 +218,8 @@ void RemoveKeyScenario::run(const std::optional<std::string> &input) const {
       current_value == "Err(KeyNotFound)") {
     value_is_default = "Err(KeyNotFound)";
   } else if (std::abs(std::get<double>(get_default->getValue()) -
-                      std::get<double>(get_value->getValue())) < 1e-6) {
+                      std::get<double>(get_value->getValue())) <
+             kFloatEpsilon) {
     value_is_default = "Ok(true)";
   } else {
     value_is_default = "Ok(false)";
@@ -234,7 +237,7 @@ void RemoveKeyScenario::run(const std::optional<std::string> &input) const {
       get_value->getType() == KvsValue::Type::f64) {
     double v = std::get<double>(get_value->getValue());
     double d = std::get<double>(get_default->getValue());
-    if (v == d)
+    if (std::abs(v - d) < kFloatEpsilon)
       value_is_default = "Ok(true)";
   }
   // Format current_value for log
@@ -265,7 +268,7 @@ void RemoveKeyScenario::run(const std::optional<std::string> &input) const {
         get_value->getType() == KvsValue::Type::f64) {
       double v = std::get<double>(get_value->getValue());
       double d = std::get<double>(get_default->getValue());
-      if (v == d)
+      if (std::abs(v - d) < kFloatEpsilon)
         value_is_default = "Ok(true)";
     }
   }
@@ -303,7 +306,8 @@ void ResetAllKeysScenario::run(const std::optional<std::string> &input) const {
         get_value->getType() == KvsValue::Type::f64) {
       double v = std::get<double>(get_value->getValue());
       double d = std::get<double>(get_default->getValue());
-      value_is_default = (v == d) ? "Ok(true)" : "Ok(false)";
+      value_is_default =
+          (std::abs(v - d) < kFloatEpsilon) ? "Ok(true)" : "Ok(false)";
     } else if (!get_default) {
       value_is_default = "Err(KeyNotFound)";
     } else {
@@ -350,7 +354,8 @@ void ResetAllKeysScenario::run(const std::optional<std::string> &input) const {
         get_value->getType() == KvsValue::Type::f64) {
       double v = std::get<double>(get_value->getValue());
       double d = std::get<double>(get_default->getValue());
-      value_is_default = (v == d) ? "Ok(true)" : "Ok(false)";
+      value_is_default =
+          (std::abs(v - d) < kFloatEpsilon) ? "Ok(true)" : "Ok(false)";
     } else if (!get_default) {
       value_is_default = "Err(KeyNotFound)";
     } else {
@@ -395,7 +400,8 @@ void ResetSingleKeyScenario::run(
         get_value->getType() == KvsValue::Type::f64) {
       double v = std::get<double>(get_value->getValue());
       double d = std::get<double>(get_default->getValue());
-      value_is_default = (v == d) ? "Ok(true)" : "Ok(false)";
+      value_is_default =
+          (std::abs(v - d) < kFloatEpsilon) ? "Ok(true)" : "Ok(false)";
     } else if (!get_default) {
       value_is_default = "Err(KeyNotFound)";
     } else {
@@ -452,7 +458,8 @@ void ResetSingleKeyScenario::run(
           get_value->getType() == KvsValue::Type::f64) {
         double v = std::get<double>(get_value->getValue());
         double d = std::get<double>(get_default->getValue());
-        value_is_default = (v == d) ? "Ok(true)" : "Ok(false)";
+        value_is_default =
+            (std::abs(v - d) < kFloatEpsilon) ? "Ok(true)" : "Ok(false)";
         std::ostringstream oss;
         oss.precision(1);
         oss << std::fixed << v;

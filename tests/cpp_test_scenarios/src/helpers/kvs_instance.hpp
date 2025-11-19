@@ -18,9 +18,9 @@ static score::mw::per::kvs::Kvs kvs_instance(const KvsParameters &params) {
   }
   auto kvs_ptr = builder.build();
   if (!kvs_ptr) {
-    throw std::runtime_error{
-        "KVS creation failed: build() returned null (possible file not found, "
-        "JSON parse error, or corruption)"};
+    throw ScenarioError(score::mw::per::kvs::ErrorCode::JsonParserError,
+                        "KVS creation failed: build() returned null (possible "
+                        "file not found, JSON parse error, or corruption)");
   }
   return std::move(*kvs_ptr);
 }

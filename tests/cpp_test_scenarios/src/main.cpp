@@ -1,3 +1,13 @@
+#include "internal/error.hpp"
+#include "score/result/result.h"
+
+// Custom exception type for error code propagation
+class ScenarioError : public std::runtime_error {
+public:
+  score::mw::per::kvs::ErrorCode code;
+  ScenarioError(score::mw::per::kvs::ErrorCode code, const std::string &msg)
+      : std::runtime_error(msg), code(code) {}
+};
 #include <iostream>
 #include <memory>
 #include <string>
@@ -92,21 +102,24 @@ int main(int argc, char **argv) {
     // print_scenarios(root_group);
 
     run_cli_app(raw_arguments, test_context);
-  } catch (const std::runtime_error &ex) {
-    std::string msg = ex.what();
-    if (msg.find("Defaults file missing") != std::string::npos ||
-        msg.find("Failed to parse JSON data") != std::string::npos ||
-        msg.find("JsonParserError") != std::string::npos ||
-        msg.find("malformed") != std::string::npos ||
-        msg.find("parse error") != std::string::npos ||
-        msg.find("invalid") != std::string::npos) {
-      std::cerr << "[EXCEPTION] Critical error: " << msg << std::endl;
+  } catch (const ScenarioError &ex) {
+    // Robust error code-based exit
+    using score::mw::per::kvs::ErrorCode;
+    switch (ex.code) {
+    case ErrorCode::KvsFileReadError:
+    case ErrorCode::KvsHashFileReadError:
+    case ErrorCode::JsonParserError:
+    case ErrorCode::ValidationFailed:
+      std::cerr << "[EXCEPTION] Critical error: " << ex.what() << std::endl;
       return 101;
-    } else {
-      std::cerr << "[EXCEPTION] Non-critical runtime error: " << msg
+    default:
+      std::cerr << "[EXCEPTION] Non-critical runtime error: " << ex.what()
                 << std::endl;
       return -1;
     }
+  } catch (const std::runtime_error &ex) {
+    std::cerr << "[EXCEPTION] std::runtime_error: " << ex.what() << std::endl;
+    return -1;
   } catch (const std::exception &ex) {
     std::cerr << "[EXCEPTION] std::exception: " << ex.what() << std::endl;
     return -1;

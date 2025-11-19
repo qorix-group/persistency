@@ -1,3 +1,13 @@
+#include "internal/error.hpp"
+#include <stdexcept>
+
+// Custom exception type for error code propagation (shared with main.cpp)
+class ScenarioError : public std::runtime_error {
+public:
+  score::mw::per::kvs::ErrorCode code;
+  ScenarioError(score::mw::per::kvs::ErrorCode code, const std::string &msg)
+      : std::runtime_error(msg), code(code) {}
+};
 #pragma once
 #include <cstdint>
 #include <optional>
@@ -25,7 +35,8 @@ KvsParameters map_to_params(const std::string &data) {
   JsonParser parser;
   auto any_res{parser.FromBuffer(data)};
   if (!any_res) {
-    throw std::runtime_error{"Failed to parse JSON data"};
+    throw ScenarioError(score::mw::per::kvs::ErrorCode::JsonParserError,
+                        "Failed to parse JSON data");
   }
   const auto &map_root{
       any_res.value().As<Object>().value().get().at("kvs_parameters")};
@@ -33,14 +44,19 @@ KvsParameters map_to_params(const std::string &data) {
 
   KvsParameters params;
   params.instance_id = obj_root.at("instance_id").As<double>().value();
+  // Precedence: direct 'need_defaults' field overrides inference from
+  // 'defaults'.
   if (obj_root.find("need_defaults") != obj_root.end()) {
     params.need_defaults = obj_root.at("need_defaults").As<bool>().value();
   } else {
-    // Infer need_defaults from 'defaults' field
+    // If 'need_defaults' is not present, infer from 'defaults' field.
     if (obj_root.find("defaults") != obj_root.end()) {
       auto defaults_val = obj_root.at("defaults").As<std::string>().value();
       if (defaults_val.get() == "required") {
         params.need_defaults = true;
+      } else if (defaults_val.get() == "optional" ||
+                 defaults_val.get() == "without") {
+        params.need_defaults = false;
       }
     }
   }
@@ -59,8 +75,8 @@ KvsParameters map_to_params(const std::string &data) {
                                   "_default.json";
       std::ifstream defaults_file(defaults_path);
       if (!defaults_file.good()) {
-        throw std::runtime_error{"map_to_params Defaults file missing: " +
-                                 defaults_path};
+        throw ScenarioError(score::mw::per::kvs::ErrorCode::KvsFileReadError,
+                            "Defaults file missing: " + defaults_path);
       }
     }
   }
