@@ -27,20 +27,6 @@ pytestmark = pytest.mark.parametrize("version", ["rust", "cpp"], scope="class")
 TaggedValue = tuple[str, Any]
 
 
-# TODO : Remove once the issue for C++ is resolved.
-def adler32(data: bytes) -> int:
-    """
-    Compute Adler-32 checksum for the given bytes.
-    """
-    MOD_ADLER = 65521
-    a = 1
-    b = 0
-    for byte in data:
-        a = (a + byte) % MOD_ADLER
-        b = (b + a) % MOD_ADLER
-    return (b << 16) | a
-
-
 def create_defaults_json(values: dict[str, TaggedValue]) -> str:
     """
     Create JSON string containing default values.
@@ -59,10 +45,9 @@ def create_defaults_file(
 ) -> Path:
     """
     Create file containing default values.
-
     """
     # Path to expected defaults file.
-
+    # E.g., `/tmp/xyz/kvs_0_default.json`.
     defaults_file_path = dir_path / f"kvs_{instance_id}_default.json"
 
     # Create JSON string containing default values.
@@ -72,17 +57,41 @@ def create_defaults_file(
     with open(defaults_file_path, mode="w", encoding="UTF-8") as file:
         file.write(json_str)
 
-    # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
+    return defaults_file_path
+
+
+# TODO : Remove once the issue for C++ is resolved.
+def adler32(data: bytes) -> int:
+    """
+    Compute Adler-32 checksum for the given bytes.
+    """
+    MOD_ADLER = 65521
+    a = 1
+    b = 0
+    for byte in data:
+        a = (a + byte) % MOD_ADLER
+        b = (b + a) % MOD_ADLER
+    return (b << 16) | a
+
+
+# TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
+def create_hash_file(defaults_file_path: Path) -> Path:
+    """
+    Create a hash file for the given defaults JSON file (Adler-32, 4 bytes, big-endian).
+    Returns the path to the created hash file.
+    """
+    instance_id = defaults_file_path.stem.split("_")[1]
+    dir_path = defaults_file_path.parent
     hash_file_path = dir_path / f"kvs_{instance_id}_default.hash"
     with open(defaults_file_path, "rb") as f:
         file_bytes = f.read()
-
     adler_hash = adler32(file_bytes)
-    # Write as 4 bytes, big-endian
     with open(hash_file_path, "wb") as hash_file:
         hash_file.write(adler_hash.to_bytes(4, byteorder="big"))
-    # Above section to be removed once C++ issue is resolved
-    return defaults_file_path
+    return hash_file_path
+
+
+# Above function to be removed once C++ issue is resolved
 
 
 class DefaultValuesScenario(CommonScenario):
@@ -92,16 +101,6 @@ class DefaultValuesScenario(CommonScenario):
 
     def instance_id(self) -> int:
         return 1
-
-    def get_binary(self, version: str) -> str:
-        if version == "rust":
-            # Path to the Rust test binary
-            return "<rust_test_binary_path>"  # TODO: set actual path
-        elif version == "cpp":
-            # Path to the C++ test binary
-            return "../cpp_test_scenarios/bin/cpp_test_scenarios"  # Adjust as needed
-        else:
-            raise ValueError(f"Unknown version: {version}")
 
     @pytest.fixture(scope="class")
     def temp_dir(
@@ -162,11 +161,12 @@ class TestDefaultValues(DefaultValuesScenario):
         # Only skip for 'without'.
         if defaults == "without":
             return None
-        # Defensive: ensure temp_dir exists
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        return create_defaults_file(
+
+        defaults_file_path = create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
+        create_hash_file(defaults_file_path)
+        return defaults_file_path
 
     def test_valid(
         self,
@@ -244,11 +244,12 @@ class TestRemoveKey(DefaultValuesScenario):
         assert defaults in ("optional", "required", "without")
         if defaults == "without":
             return None
-        # Defensive: ensure temp_dir exists
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        return create_defaults_file(
+
+        defaults_file_path = create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
+        create_hash_file(defaults_file_path)
+        return defaults_file_path
 
     def test_valid(
         self,
@@ -337,16 +338,7 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
         defaults_file_path = temp_dir / f"kvs_{self.instance_id()}_default.json"
         with open(defaults_file_path, mode="w", encoding="UTF-8") as file:
             file.write(json_str)
-
-        # TODO : Remove once the issue for C++ is resolved. Create a hash file for the malformed JSON, as C++ expects it to exist
-        hash_file_path = temp_dir / f"kvs_{self.instance_id()}_default.hash"
-
-        with open(defaults_file_path, "rb") as f:
-            file_bytes = f.read()
-        adler_hash = adler32(file_bytes)
-        with open(hash_file_path, "wb") as hash_file:
-            hash_file.write(adler_hash.to_bytes(4, byteorder="big"))
-        # Above section to be removed once C++ issue is resolved
+        create_hash_file(defaults_file_path)
         return defaults_file_path
 
     def test_invalid(
@@ -444,9 +436,10 @@ class TestResetAllKeys(DefaultValuesScenario):
         values = {}
         for i in range(self.NUM_VALUES):
             values[f"test_number_{i}"] = ("f64", 432.1 * i)
-        # Defensive: ensure temp_dir exists
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        return create_defaults_file(temp_dir, self.instance_id(), values)
+
+        defaults_file_path = create_defaults_file(temp_dir, self.instance_id(), values)
+        create_hash_file(defaults_file_path)
+        return defaults_file_path
 
     def test_valid(
         self,
@@ -513,9 +506,10 @@ class TestResetSingleKey(DefaultValuesScenario):
         values = {}
         for i in range(self.NUM_VALUES):
             values[f"test_number_{i}"] = ("f64", 432.1 * i)
-        # Defensive: ensure temp_dir exists
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        return create_defaults_file(temp_dir, self.instance_id(), values)
+
+        defaults_file_path = create_defaults_file(temp_dir, self.instance_id(), values)
+        create_hash_file(defaults_file_path)
+        return defaults_file_path
 
     def test_valid(
         self,
@@ -593,11 +587,12 @@ class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
         assert defaults in ("optional", "required", "without")
         if defaults == "without":
             return None
-        # Defensive: ensure temp_dir exists
-        temp_dir.mkdir(parents=True, exist_ok=True)
-        return create_defaults_file(
+
+        defaults_file_path = create_defaults_file(
             temp_dir, self.instance_id(), {self.KEY: ("f64", self.VALUE)}
         )
+        create_hash_file(defaults_file_path)
+        return defaults_file_path
 
     def test_valid(
         self,

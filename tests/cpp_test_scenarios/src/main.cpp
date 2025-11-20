@@ -45,6 +45,7 @@ public:
   ScenarioError(score::mw::per::kvs::ErrorCode code, const std::string &msg)
       : std::runtime_error(msg), code(code) {}
 };
+
 void print_scenarios(const ScenarioGroup::Ptr &group,
                      const std::string &prefix = "") {
   std::string group_name = group->name();
@@ -61,8 +62,7 @@ void print_scenarios(const ScenarioGroup::Ptr &group,
 
 int main(int argc, char **argv) {
   try {
-    // If called with 3 arguments, treat as direct scenario invocation (for
-    // default_values)
+    // If called with 3 arguments, treat as direct scenario invocation (for default_values)
     if (argc == 3) {
       std::string scenario_name = argv[1];
       std::string input_json = argv[2];
@@ -72,16 +72,23 @@ int main(int argc, char **argv) {
           try {
             scenario->run(input_json);
             return 0;
-          } catch (...) {
-            // Always return 101 for any error in scenario invocation
-            std::cerr << "[SCENARIO ERROR] Exception thrown in scenario: "
-                      << scenario_name << std::endl;
+          } catch (const ScenarioError &ex) {
+            std::cerr << "[SCENARIO ERROR] ScenarioError thrown in scenario: " << scenario_name << ": " << ex.what() << std::endl;
             return 101;
+          } catch (const std::runtime_error &ex) {
+            std::cerr << "[SCENARIO ERROR] std::runtime_error in scenario: " << scenario_name << ": " << ex.what() << std::endl;
+            return 102;
+          } catch (const std::exception &ex) {
+            std::cerr << "[SCENARIO ERROR] std::exception in scenario: " << scenario_name << ": " << ex.what() << std::endl;
+            return 103;
+          } catch (...) {
+            std::cerr << "[SCENARIO ERROR] Unknown exception in scenario: " << scenario_name << std::endl;
+            return 104;
           }
         }
       }
       std::cerr << "Scenario not found: " << scenario_name << std::endl;
-      return -1;
+      return 105;
     }
 
     std::vector<std::string> raw_arguments{argv, argv + argc};
@@ -116,7 +123,6 @@ int main(int argc, char **argv) {
 
     run_cli_app(raw_arguments, test_context);
   } catch (const ScenarioError &ex) {
-    // Robust error code-based exit
     using score::mw::per::kvs::ErrorCode;
     switch (ex.code) {
     case ErrorCode::KvsFileReadError:
@@ -126,19 +132,18 @@ int main(int argc, char **argv) {
       std::cerr << "[EXCEPTION] Critical error: " << ex.what() << std::endl;
       return 101;
     default:
-      std::cerr << "[EXCEPTION] Non-critical runtime error: " << ex.what()
-                << std::endl;
-      return -1;
+      std::cerr << "[EXCEPTION] Non-critical runtime error: " << ex.what() << std::endl;
+      return 202;
     }
   } catch (const std::runtime_error &ex) {
     std::cerr << "[EXCEPTION] std::runtime_error: " << ex.what() << std::endl;
-    return -1;
+    return 102;
   } catch (const std::exception &ex) {
     std::cerr << "[EXCEPTION] std::exception: " << ex.what() << std::endl;
-    return -1;
+    return 103;
   } catch (...) {
     std::cerr << "[EXCEPTION] Unknown exception" << std::endl;
-    return -1;
+    return 104;
   }
   return 0;
 }

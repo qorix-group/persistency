@@ -60,6 +60,7 @@ static void info_log(const std::string &key,
                std::pair{std::string{"value_is_default"}, value_is_default},
                std::pair{std::string{"default_value"}, default_value},
                std::pair{std::string{"current_value"}, current_value});
+               
 }
 
 std::string DefaultValuesScenario::name() const { return "default_values"; }
