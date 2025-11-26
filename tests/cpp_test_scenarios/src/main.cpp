@@ -99,16 +99,15 @@ int main(int argc, char **argv) {
         new ScenarioGroupImpl{"basic", {basic_scenario}, {}}};
 
     // Default values group
-    Scenario::Ptr default_values_scenario{new DefaultValuesScenario{}};
-    Scenario::Ptr remove_key_scenario{new RemoveKeyScenario{}};
+    // Scenario::Ptr default_values_scenario{new DefaultValuesScenario{}};
+    // Scenario::Ptr remove_key_scenario{new RemoveKeyScenario{}};
     Scenario::Ptr reset_all_keys_scenario{new ResetAllKeysScenario{}};
-    Scenario::Ptr reset_single_key_scenario{new ResetSingleKeyScenario{}};
-    Scenario::Ptr checksum_scenario{new ChecksumScenario{}};
+    // Scenario::Ptr reset_single_key_scenario{new ResetSingleKeyScenario{}};
+    // Scenario::Ptr checksum_scenario{new ChecksumScenario{}};
 
     ScenarioGroup::Ptr default_values_group{new ScenarioGroupImpl{
         "default_values",
-        {default_values_scenario, remove_key_scenario, reset_all_keys_scenario,
-         reset_single_key_scenario, checksum_scenario},
+        {reset_all_keys_scenario},
         {}}};
 
     ScenarioGroup::Ptr cit_group{

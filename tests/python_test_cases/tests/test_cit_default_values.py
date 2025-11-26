@@ -454,15 +454,15 @@ class TestResetAllKeys(DefaultValuesScenario):
             logs = logs_info_level.get_logs("key", value=f"test_number_{i}")
 
             # Check values before set.
-            assert logs[0].value_is_default == "Ok(true)"
-            assert logs[0].current_value == f"Ok(F64({432.1 * i:.1f}))"
+            assert logs[0].value_is_default
+            assert logs[0].current_value == 432.1 * i
 
             # Check values after set.
-            assert logs[1].value_is_default == "Ok(false)"
-            assert logs[1].current_value == f"Ok(F64({123.4 * i:.1f}))"
+            assert not logs[1].value_is_default
+            assert logs[1].current_value == 123.4 * i
             # Check values after reset.
-            assert logs[2].value_is_default == "Ok(true)"
-            assert logs[2].current_value == f"Ok(F64({432.1 * i:.1f}))"
+            assert logs[2].value_is_default
+            assert logs[2].current_value == 432.1 * i
 
 
 @pytest.mark.PartiallyVerifies(
