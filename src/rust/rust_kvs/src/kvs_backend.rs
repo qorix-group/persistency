@@ -12,18 +12,17 @@
 use crate::error_code::ErrorCode;
 use crate::kvs_api::{InstanceId, SnapshotId};
 use crate::kvs_value::KvsMap;
-use core::any::Any;
 
-pub trait DynEq: Any {
-    fn dyn_eq(&self, other: &dyn Any) -> bool;
-    fn as_any(&self) -> &dyn Any;
+pub trait DynEq: core::any::Any {
+    fn dyn_eq(&self, other: &dyn core::any::Any) -> bool;
+    fn as_any(&self) -> &dyn core::any::Any;
 }
 
-impl<T: PartialEq + Any> DynEq for T
+impl<T: PartialEq + core::any::Any> DynEq for T
 where
     T: KvsBackend,
 {
-    fn dyn_eq(&self, other: &dyn Any) -> bool {
+    fn dyn_eq(&self, other: &dyn core::any::Any) -> bool {
         if let Some(other) = other.downcast_ref::<T>() {
             self == other
         } else {
@@ -31,7 +30,7 @@ where
         }
     }
 
-    fn as_any(&self) -> &dyn Any {
+    fn as_any(&self) -> &dyn core::any::Any {
         self
     }
 }

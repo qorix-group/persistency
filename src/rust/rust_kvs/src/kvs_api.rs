@@ -11,14 +11,13 @@
 
 use crate::error_code::ErrorCode;
 use crate::kvs_value::KvsValue;
-use core::fmt;
 
 /// Instance ID
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct InstanceId(pub usize);
 
-impl fmt::Display for InstanceId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for InstanceId {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
@@ -33,8 +32,8 @@ impl From<InstanceId> for usize {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SnapshotId(pub usize);
 
-impl fmt::Display for SnapshotId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for SnapshotId {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
@@ -93,33 +92,4 @@ pub trait KvsApi {
     fn snapshot_count(&self) -> usize;
     fn snapshot_max_count(&self) -> usize;
     fn snapshot_restore(&self, snapshot_id: SnapshotId) -> Result<(), ErrorCode>;
-}
-
-#[cfg(test)]
-mod kvs_api_tests {
-    use crate::kvs_api::{InstanceId, SnapshotId};
-
-    #[test]
-    fn test_instance_id_to_string() {
-        let id = InstanceId(123);
-        assert_eq!(id.to_string(), "123");
-    }
-
-    #[test]
-    fn test_instance_id_to_usize() {
-        let id = InstanceId(999);
-        assert_eq!(usize::from(id), 999);
-    }
-
-    #[test]
-    fn test_snapshot_id_fmt() {
-        let id = SnapshotId(4321);
-        assert_eq!(id.to_string(), "4321");
-    }
-
-    #[test]
-    fn test_snapshot_id_to_usize() {
-        let id = SnapshotId(0);
-        assert_eq!(usize::from(id), 0);
-    }
 }

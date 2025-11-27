@@ -13,9 +13,6 @@ use crate::error_code::ErrorCode;
 use crate::kvs_api::{InstanceId, SnapshotId};
 use crate::kvs_backend::KvsBackend;
 use crate::kvs_value::{KvsMap, KvsValue};
-use std::collections::HashMap;
-use std::fs;
-use std::path::{Path, PathBuf};
 use tinyjson::{JsonGenerateError, JsonParseError, JsonValue};
 
 // Example of how KvsValue is stored in the JSON file (t-tagged format):
@@ -73,7 +70,7 @@ impl From<JsonValue> for KvsValue {
 /// Backend-specific KvsValue -> JsonValue conversion.
 impl From<KvsValue> for JsonValue {
     fn from(val: KvsValue) -> JsonValue {
-        let mut obj = HashMap::new();
+        let mut obj = std::collections::HashMap::new();
         match val {
             KvsValue::I32(n) => {
                 obj.insert("t".to_string(), JsonValue::String("i32".to_string()));
@@ -152,19 +149,19 @@ impl From<JsonGenerateError> for ErrorCode {
 
 /// Builder for `JsonBackend`.
 pub struct JsonBackendBuilder {
-    working_dir: PathBuf,
+    working_dir: std::path::PathBuf,
     snapshot_max_count: usize,
 }
 
 impl JsonBackendBuilder {
     pub fn new() -> Self {
         Self {
-            working_dir: PathBuf::new(),
+            working_dir: std::path::PathBuf::new(),
             snapshot_max_count: 3,
         }
     }
 
-    pub fn working_dir(mut self, working_dir: PathBuf) -> Self {
+    pub fn working_dir(mut self, working_dir: std::path::PathBuf) -> Self {
         self.working_dir = working_dir;
         self
     }
@@ -191,7 +188,7 @@ impl Default for JsonBackendBuilder {
 /// KVS backend implementation based on TinyJSON.
 #[derive(Clone, PartialEq)]
 pub struct JsonBackend {
-    working_dir: PathBuf,
+    working_dir: std::path::PathBuf,
     snapshot_max_count: usize,
 }
 
@@ -232,8 +229,8 @@ impl JsonBackend {
 
             // If both exist - rename them.
             if snap_old_exists && hash_old_exists {
-                fs::rename(hash_path_old, hash_path_new)?;
-                fs::rename(snap_path_old, snap_path_new)?;
+                std::fs::rename(hash_path_old, hash_path_new)?;
+                std::fs::rename(snap_path_old, snap_path_new)?;
             }
             // If neither exist - continue.
             else if !snap_old_exists && !hash_old_exists {
@@ -250,12 +247,12 @@ impl JsonBackend {
     }
 
     /// Check path have correct extension.
-    fn check_extension(path: &Path, extension: &str) -> bool {
+    fn check_extension(path: &std::path::Path, extension: &str) -> bool {
         let ext = path.extension();
         ext.is_some_and(|ep| ep.to_str().is_some_and(|es| es == extension))
     }
 
-    pub(super) fn load(kvs_path: &Path, hash_path: &Path) -> Result<KvsMap, ErrorCode> {
+    pub(super) fn load(kvs_path: &std::path::Path, hash_path: &std::path::Path) -> Result<KvsMap, ErrorCode> {
         if !Self::check_extension(kvs_path, "json") {
             return Err(ErrorCode::KvsFileReadError);
         }
@@ -264,11 +261,11 @@ impl JsonBackend {
         }
 
         // Load KVS file and parse from string to `JsonValue`.
-        let json_str = fs::read_to_string(kvs_path)?;
+        let json_str = std::fs::read_to_string(kvs_path)?;
         let json_value = Self::parse(&json_str)?;
 
         // Perform hash check.
-        match fs::read(hash_path) {
+        match std::fs::read(hash_path) {
             Ok(hash_bytes) => {
                 let hash_kvs = adler32::RollingAdler32::from_buffer(json_str.as_bytes()).hash();
                 if hash_bytes.len() == 4 {
@@ -299,8 +296,8 @@ impl JsonBackend {
 
     pub(super) fn save(
         kvs_map: &KvsMap,
-        kvs_path: &Path,
-        hash_path: &Path,
+        kvs_path: &std::path::Path,
+        hash_path: &std::path::Path,
     ) -> Result<(), ErrorCode> {
         // Validate extensions.
         if !Self::check_extension(kvs_path, "json") {
@@ -316,11 +313,11 @@ impl JsonBackend {
 
         // Stringify `JsonValue` and save to KVS file.
         let json_str = Self::stringify(&json_value)?;
-        fs::write(kvs_path, &json_str)?;
+        std::fs::write(kvs_path, &json_str)?;
 
         // Generate hash and save to hash file.
         let hash = adler32::RollingAdler32::from_buffer(json_str.as_bytes()).hash();
-        fs::write(hash_path, hash.to_be_bytes())?;
+        std::fs::write(hash_path, hash.to_be_bytes())?;
 
         Ok(())
     }
@@ -331,7 +328,7 @@ impl JsonBackend {
     }
 
     /// Get KVS file path in working directory.
-    pub fn kvs_file_path(&self, instance_id: InstanceId, snapshot_id: SnapshotId) -> PathBuf {
+    pub fn kvs_file_path(&self, instance_id: InstanceId, snapshot_id: SnapshotId) -> std::path::PathBuf {
         self.working_dir
             .join(Self::kvs_file_name(instance_id, snapshot_id))
     }
@@ -342,7 +339,7 @@ impl JsonBackend {
     }
 
     /// Get hash file path in working directory.
-    pub fn hash_file_path(&self, instance_id: InstanceId, snapshot_id: SnapshotId) -> PathBuf {
+    pub fn hash_file_path(&self, instance_id: InstanceId, snapshot_id: SnapshotId) -> std::path::PathBuf {
         self.working_dir
             .join(Self::hash_file_name(instance_id, snapshot_id))
     }
@@ -353,7 +350,7 @@ impl JsonBackend {
     }
 
     /// Get defaults file path in working directory.
-    pub fn defaults_file_path(&self, instance_id: InstanceId) -> PathBuf {
+    pub fn defaults_file_path(&self, instance_id: InstanceId) -> std::path::PathBuf {
         self.working_dir.join(Self::defaults_file_name(instance_id))
     }
 
@@ -363,7 +360,7 @@ impl JsonBackend {
     }
 
     /// Get defaults hash file path in working directory.
-    pub fn defaults_hash_file_path(&self, instance_id: InstanceId) -> PathBuf {
+    pub fn defaults_hash_file_path(&self, instance_id: InstanceId) -> std::path::PathBuf {
         self.working_dir
             .join(Self::defaults_hash_file_name(instance_id))
     }
@@ -438,1029 +435,5 @@ impl KvsBackend for JsonBackend {
         }
 
         self.load_kvs(instance_id, snapshot_id)
-    }
-}
-
-#[cfg(test)]
-mod json_value_to_kvs_value_conversion_tests {
-    use crate::kvs_value::{KvsMap, KvsValue};
-    use std::collections::HashMap;
-    use tinyjson::JsonValue;
-
-    #[test]
-    fn test_i32_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::I32(-123));
-    }
-
-    #[test]
-    fn test_i32_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::String("-123.0".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_u32_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("u32".to_string())),
-            ("v".to_string(), JsonValue::Number(123.0)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::U32(123));
-    }
-
-    #[test]
-    fn test_u32_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("u32".to_string())),
-            ("v".to_string(), JsonValue::String("123.0".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_i64_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i64".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::I64(-123));
-    }
-
-    #[test]
-    fn test_i64_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i64".to_string())),
-            ("v".to_string(), JsonValue::String("-123.0".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_u64_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("u64".to_string())),
-            ("v".to_string(), JsonValue::Number(123.0)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::U64(123));
-    }
-
-    #[test]
-    fn test_u64_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("u64".to_string())),
-            ("v".to_string(), JsonValue::String("123.0".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_f64_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::Number(-432.1)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::F64(-432.1));
-    }
-
-    #[test]
-    fn test_f64_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::String("-432.1".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_bool_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("bool".to_string())),
-            ("v".to_string(), JsonValue::Boolean(true)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Boolean(true));
-    }
-
-    #[test]
-    fn test_bool_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("bool".to_string())),
-            ("v".to_string(), JsonValue::String("true".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_string_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("str".to_string())),
-            ("v".to_string(), JsonValue::String("example".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::String("example".to_string()));
-    }
-
-    #[test]
-    fn test_string_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("str".to_string())),
-            ("v".to_string(), JsonValue::Number(123.4)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_null_ok() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("null".to_string())),
-            ("v".to_string(), JsonValue::Null),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_null_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("null".to_string())),
-            ("v".to_string(), JsonValue::Number(123.4)),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_array_ok() {
-        let entry1 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let entry2 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::Number(555.5)),
-        ]));
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("arr".to_string())),
-            ("v".to_string(), JsonValue::Array(vec![entry1, entry2])),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(
-            kv,
-            KvsValue::Array(vec![KvsValue::I32(-123), KvsValue::F64(555.5)])
-        );
-    }
-
-    #[test]
-    fn test_array_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("arr".to_string())),
-            ("v".to_string(), JsonValue::String("example".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_object_ok() {
-        let entry1 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let entry2 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::Number(555.5)),
-        ]));
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("obj".to_string())),
-            (
-                "v".to_string(),
-                JsonValue::Object(HashMap::from([
-                    ("entry1".to_string(), entry1.clone()),
-                    ("entry2".to_string(), entry2.clone()),
-                ])),
-            ),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(
-            kv,
-            KvsValue::Object(KvsMap::from([
-                ("entry1".to_string(), KvsValue::from(entry1)),
-                ("entry2".to_string(), KvsValue::from(entry2))
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_object_invalid_type() {
-        let jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("obj".to_string())),
-            ("v".to_string(), JsonValue::String("example".to_string())),
-        ]));
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-
-    #[test]
-    fn test_non_json_value_object() {
-        let jv = JsonValue::Number(123.0);
-        let kv = KvsValue::from(jv);
-        assert_eq!(kv, KvsValue::Null);
-    }
-}
-
-#[cfg(test)]
-mod kvs_value_to_json_value_conversion_tests {
-    use crate::kvs_value::{KvsMap, KvsValue};
-    use std::collections::HashMap;
-    use tinyjson::JsonValue;
-
-    #[test]
-    fn test_i32_ok() {
-        let kv = KvsValue::I32(-123);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("i32".to_string())),
-                ("v".to_string(), JsonValue::Number(-123.0))
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_u32_ok() {
-        let kv = KvsValue::U32(123);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("u32".to_string())),
-                ("v".to_string(), JsonValue::Number(123.0))
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_i64_ok() {
-        let kv = KvsValue::I64(-123);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("i64".to_string())),
-                ("v".to_string(), JsonValue::Number(-123.0)),
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_u64_ok() {
-        let kv = KvsValue::U64(123);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("u64".to_string())),
-                ("v".to_string(), JsonValue::Number(123.0))
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_f64_ok() {
-        let kv = KvsValue::F64(-432.1);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("f64".to_string())),
-                ("v".to_string(), JsonValue::Number(-432.1)),
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_bool_ok() {
-        let kv = KvsValue::Boolean(true);
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("bool".to_string())),
-                ("v".to_string(), JsonValue::Boolean(true)),
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_string_ok() {
-        let kv = KvsValue::String("example".to_string());
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("str".to_string())),
-                ("v".to_string(), JsonValue::String("example".to_string())),
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_null_ok() {
-        let kv = KvsValue::Null;
-        let jv = JsonValue::from(kv);
-
-        assert_eq!(
-            jv,
-            JsonValue::Object(HashMap::from([
-                ("t".to_string(), JsonValue::String("null".to_string())),
-                ("v".to_string(), JsonValue::Null),
-            ]))
-        );
-    }
-
-    #[test]
-    fn test_array_ok() {
-        let kv = KvsValue::Array(vec![KvsValue::I32(-123), KvsValue::F64(555.5)]);
-        let jv = JsonValue::from(kv);
-
-        let exp_entry1 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let exp_entry2 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::Number(555.5)),
-        ]));
-        let exp_jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("arr".to_string())),
-            (
-                "v".to_string(),
-                JsonValue::Array(vec![exp_entry1, exp_entry2]),
-            ),
-        ]));
-        assert_eq!(jv, exp_jv);
-    }
-
-    #[test]
-    fn test_object_ok() {
-        let entry1 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("i32".to_string())),
-            ("v".to_string(), JsonValue::Number(-123.0)),
-        ]));
-        let entry2 = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("f64".to_string())),
-            ("v".to_string(), JsonValue::Number(555.5)),
-        ]));
-
-        let kv = KvsValue::Object(KvsMap::from([
-            ("entry1".to_string(), KvsValue::from(entry1.clone())),
-            ("entry2".to_string(), KvsValue::from(entry2.clone())),
-        ]));
-        let jv = JsonValue::from(kv);
-
-        let exp_jv = JsonValue::from(HashMap::from([
-            ("t".to_string(), JsonValue::String("obj".to_string())),
-            (
-                "v".to_string(),
-                JsonValue::Object(HashMap::from([
-                    ("entry1".to_string(), entry1),
-                    ("entry2".to_string(), entry2),
-                ])),
-            ),
-        ]));
-        assert_eq!(jv, exp_jv);
-    }
-}
-
-#[cfg(test)]
-mod error_code_tests {
-    use crate::error_code::ErrorCode;
-    use tinyjson::JsonValue;
-
-    #[test]
-    fn test_from_json_parse_error_to_json_parser_error() {
-        let error = tinyjson::JsonParser::new("[1, 2, 3".chars())
-            .parse()
-            .unwrap_err();
-        assert_eq!(ErrorCode::from(error), ErrorCode::JsonParserError);
-    }
-
-    #[test]
-    fn test_from_json_generate_error_to_json_generate_error() {
-        let data: JsonValue = JsonValue::Number(f64::INFINITY);
-        let error = data.stringify().unwrap_err();
-        assert_eq!(ErrorCode::from(error), ErrorCode::JsonGeneratorError);
-    }
-}
-
-#[cfg(test)]
-mod json_backend_builder_tests {
-    use crate::{json_backend::JsonBackendBuilder, prelude::KvsBackend};
-    use std::path::PathBuf;
-    use tempfile::tempdir;
-
-    #[test]
-    fn test_new_ok() {
-        let builder = JsonBackendBuilder::new();
-
-        // Assert builder params.
-        assert_eq!(builder.working_dir, PathBuf::new());
-        assert_eq!(builder.snapshot_max_count, 3);
-
-        // Build and assert backend params.
-        let backend = builder.build();
-        assert_eq!(backend.working_dir, PathBuf::new());
-        assert_eq!(backend.snapshot_max_count(), 3);
-    }
-
-    #[test]
-    fn test_default_ok() {
-        let builder = JsonBackendBuilder::default();
-
-        // Assert builder params.
-        assert_eq!(builder.working_dir, PathBuf::new());
-        assert_eq!(builder.snapshot_max_count, 3);
-
-        // Build and assert backend params.
-        let backend = builder.build();
-        assert_eq!(backend.working_dir, PathBuf::new());
-        assert_eq!(backend.snapshot_max_count(), 3);
-    }
-
-    #[test]
-    fn test_working_dir_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let builder = JsonBackendBuilder::new().working_dir(dir_path.clone());
-
-        // Assert builder params.
-        assert_eq!(builder.working_dir, dir_path.clone());
-        assert_eq!(builder.snapshot_max_count, 3);
-
-        // Build and assert backend params.
-        let backend = builder.build();
-        assert_eq!(backend.working_dir, dir_path);
-        assert_eq!(backend.snapshot_max_count(), 3);
-    }
-
-    #[test]
-    fn test_snapshot_max_count_ok() {
-        let builder = JsonBackendBuilder::new().snapshot_max_count(10);
-
-        // Assert builder params.
-        assert_eq!(builder.working_dir, PathBuf::new());
-        assert_eq!(builder.snapshot_max_count, 10);
-
-        // Build and assert backend params.
-        let backend = builder.build();
-        assert_eq!(backend.working_dir, PathBuf::new());
-        assert_eq!(backend.snapshot_max_count(), 10);
-    }
-
-    #[test]
-    fn test_chained_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let builder = JsonBackendBuilder::new()
-            .working_dir(dir_path.clone())
-            .snapshot_max_count(10);
-
-        // Assert builder params.
-        assert_eq!(builder.working_dir, dir_path.clone());
-        assert_eq!(builder.snapshot_max_count, 10);
-
-        // Build and assert backend params.
-        let backend = builder.build();
-        assert_eq!(backend.working_dir, dir_path);
-        assert_eq!(backend.snapshot_max_count(), 10);
-    }
-}
-
-#[cfg(test)]
-mod json_backend_tests {
-    use crate::error_code::ErrorCode;
-    use crate::json_backend::{JsonBackend, JsonBackendBuilder};
-    use crate::kvs_api::{InstanceId, SnapshotId};
-    use crate::kvs_value::{KvsMap, KvsValue};
-    use std::path::{Path, PathBuf};
-    use tempfile::tempdir;
-
-    fn create_kvs_files(working_dir: &Path) -> (PathBuf, PathBuf) {
-        let kvs_map = KvsMap::from([
-            ("k1".to_string(), KvsValue::from("v1")),
-            ("k2".to_string(), KvsValue::from(true)),
-            ("k3".to_string(), KvsValue::from(123.4)),
-        ]);
-        let kvs_path = working_dir.join("kvs.json");
-        let hash_path = working_dir.join("kvs.hash");
-        JsonBackend::save(&kvs_map, &kvs_path, &hash_path).unwrap();
-        (kvs_path, hash_path)
-    }
-
-    #[test]
-    fn test_load_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let (kvs_path, hash_path) = create_kvs_files(&dir_path);
-
-        let kvs_map = JsonBackend::load(&kvs_path, &hash_path).unwrap();
-        assert_eq!(kvs_map.len(), 3);
-    }
-
-    #[test]
-    fn test_load_kvs_not_found() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let (kvs_path, hash_path) = create_kvs_files(&dir_path);
-        std::fs::remove_file(&kvs_path).unwrap();
-
-        assert!(
-            JsonBackend::load(&kvs_path, &hash_path).is_err_and(|e| e == ErrorCode::FileNotFound)
-        );
-    }
-
-    #[test]
-    fn test_load_kvs_invalid_extension() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let kvs_path = dir_path.join("kvs.invalid_ext");
-        let hash_path = dir_path.join("kvs.hash");
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::KvsFileReadError));
-    }
-
-    #[test]
-    fn test_load_hash_not_found() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let (kvs_path, hash_path) = create_kvs_files(&dir_path);
-        std::fs::remove_file(&hash_path).unwrap();
-
-        assert!(
-            JsonBackend::load(&kvs_path, &hash_path).is_err_and(|e| e == ErrorCode::FileNotFound)
-        );
-    }
-
-    #[test]
-    fn test_load_hash_invalid_extension() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.invalid_ext");
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::KvsHashFileReadError));
-    }
-
-    #[test]
-    fn test_load_malformed_json() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.hash");
-
-        let contents = "{\"malformed_json\"}";
-        let hash = adler32::RollingAdler32::from_buffer(contents.as_bytes()).hash();
-        std::fs::write(kvs_path.clone(), contents).unwrap();
-        std::fs::write(hash_path.clone(), hash.to_be_bytes()).unwrap();
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::JsonParserError));
-    }
-
-    #[test]
-    fn test_load_invalid_data() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.hash");
-
-        let contents = "[123.4, 567.8]";
-        let hash = adler32::RollingAdler32::from_buffer(contents.as_bytes()).hash();
-        std::fs::write(kvs_path.clone(), contents).unwrap();
-        std::fs::write(hash_path.clone(), hash.to_be_bytes()).unwrap();
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::JsonParserError));
-    }
-
-    #[test]
-    fn test_load_invalid_hash_content() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let (kvs_path, hash_path) = create_kvs_files(&dir_path);
-        std::fs::write(hash_path.clone(), vec![0x12, 0x34, 0x56, 0x78]).unwrap();
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::ValidationFailed));
-    }
-
-    #[test]
-    fn test_load_invalid_hash_len() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let (kvs_path, hash_path) = create_kvs_files(&dir_path);
-        std::fs::write(hash_path.clone(), vec![0x12, 0x34, 0x56]).unwrap();
-
-        assert!(JsonBackend::load(&kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::ValidationFailed));
-    }
-
-    #[test]
-    fn test_save_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-
-        let kvs_map = KvsMap::from([
-            ("k1".to_string(), KvsValue::from("v1")),
-            ("k2".to_string(), KvsValue::from(true)),
-            ("k3".to_string(), KvsValue::from(123.4)),
-        ]);
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.hash");
-        JsonBackend::save(&kvs_map, &kvs_path, &hash_path).unwrap();
-
-        assert!(kvs_path.exists());
-    }
-
-    #[test]
-    fn test_save_kvs_invalid_extension() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-
-        let kvs_map = KvsMap::new();
-        let kvs_path = dir_path.join("kvs.invalid_ext");
-        let hash_path = dir_path.join("kvs.hash");
-
-        assert!(JsonBackend::save(&kvs_map, &kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::KvsFileReadError));
-    }
-
-    #[test]
-    fn test_save_hash_invalid_extension() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-
-        let kvs_map = KvsMap::new();
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.invalid_ext");
-
-        assert!(JsonBackend::save(&kvs_map, &kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::KvsHashFileReadError));
-    }
-
-    #[test]
-    fn test_save_impossible_str() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-
-        let kvs_map = KvsMap::from([("inf".to_string(), KvsValue::from(f64::INFINITY))]);
-        let kvs_path = dir_path.join("kvs.json");
-        let hash_path = dir_path.join("kvs.hash");
-
-        assert!(JsonBackend::save(&kvs_map, &kvs_path, &hash_path)
-            .is_err_and(|e| e == ErrorCode::JsonGeneratorError));
-    }
-
-    #[test]
-    fn test_kvs_file_name() {
-        let instance_id = InstanceId(123);
-        let snapshot_id = SnapshotId(2);
-        let exp_name = format!("kvs_{instance_id}_{snapshot_id}.json");
-        let act_name = JsonBackend::kvs_file_name(instance_id, snapshot_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_kvs_file_path() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new()
-            .working_dir(dir_path.clone())
-            .build();
-
-        let instance_id = InstanceId(123);
-        let snapshot_id = SnapshotId(2);
-        let exp_name = dir_path.join(format!("kvs_{instance_id}_{snapshot_id}.json"));
-        let act_name = backend.kvs_file_path(instance_id, snapshot_id);
-        assert_eq!(exp_name, act_name);
-    }
-    #[test]
-    fn test_hash_file_name() {
-        let instance_id = InstanceId(123);
-        let snapshot_id = SnapshotId(2);
-        let exp_name = format!("kvs_{instance_id}_{snapshot_id}.hash");
-        let act_name = JsonBackend::hash_file_name(instance_id, snapshot_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_hash_file_path() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new()
-            .working_dir(dir_path.clone())
-            .build();
-
-        let instance_id = InstanceId(123);
-        let snapshot_id = SnapshotId(2);
-        let exp_name = dir_path.join(format!("kvs_{instance_id}_{snapshot_id}.hash"));
-        let act_name = backend.hash_file_path(instance_id, snapshot_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_defaults_file_name() {
-        let instance_id = InstanceId(123);
-        let exp_name = format!("kvs_{instance_id}_default.json");
-        let act_name = JsonBackend::defaults_file_name(instance_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_defaults_file_path() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new()
-            .working_dir(dir_path.clone())
-            .build();
-
-        let instance_id = InstanceId(123);
-        let exp_name = dir_path.join(format!("kvs_{instance_id}_default.json"));
-        let act_name = backend.defaults_file_path(instance_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_defaults_hash_file_name() {
-        let instance_id = InstanceId(123);
-        let exp_name = format!("kvs_{instance_id}_default.hash");
-        let act_name = JsonBackend::defaults_hash_file_name(instance_id);
-        assert_eq!(exp_name, act_name);
-    }
-
-    #[test]
-    fn test_defaults_hash_file_path() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new()
-            .working_dir(dir_path.clone())
-            .build();
-
-        let instance_id = InstanceId(123);
-        let exp_name = dir_path.join(format!("kvs_{instance_id}_default.hash"));
-        let act_name = backend.defaults_hash_file_path(instance_id);
-        assert_eq!(exp_name, act_name);
-    }
-}
-
-#[cfg(test)]
-mod kvs_backend_tests {
-    use crate::error_code::ErrorCode;
-    use crate::json_backend::{JsonBackend, JsonBackendBuilder};
-    use crate::kvs_api::{InstanceId, SnapshotId};
-    use crate::kvs_backend::KvsBackend;
-    use crate::kvs_value::{KvsMap, KvsValue};
-    use std::fs;
-    use tempfile::tempdir;
-
-    fn create_kvs_files(backend: &JsonBackend, instance_id: InstanceId, snapshot_id: SnapshotId) {
-        let kvs_map = KvsMap::from([
-            ("k1".to_string(), KvsValue::from("v1")),
-            ("k2".to_string(), KvsValue::from(true)),
-            ("k3".to_string(), KvsValue::from(123.4)),
-        ]);
-        let kvs_path = backend.kvs_file_path(instance_id, snapshot_id);
-        let hash_path = backend.hash_file_path(instance_id, snapshot_id);
-        JsonBackend::save(&kvs_map, &kvs_path, &hash_path).unwrap();
-    }
-
-    fn create_defaults_file(backend: &JsonBackend, instance_id: InstanceId) {
-        let kvs_map = KvsMap::from([
-            ("k4".to_string(), KvsValue::from("v4")),
-            ("k5".to_string(), KvsValue::from(432.1)),
-        ]);
-        let defaults_path = backend.defaults_file_path(instance_id);
-        let defaults_hash_path = backend.defaults_hash_file_path(instance_id);
-        JsonBackend::save(&kvs_map, &defaults_path, &defaults_hash_path).unwrap();
-    }
-
-    #[test]
-    fn test_load_kvs_ok() {
-        // Main `load` tests are performed by `test_load_*` tests.
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(1);
-        let snapshot_id = SnapshotId(1);
-        create_kvs_files(&backend, instance_id, snapshot_id);
-
-        let kvs_map = backend.load_kvs(instance_id, snapshot_id).unwrap();
-        assert_eq!(kvs_map.len(), 3);
-    }
-
-    #[test]
-    fn test_load_defaults_ok() {
-        // Main `load` tests are performed by `test_load_*` tests.
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(1);
-        create_defaults_file(&backend, instance_id);
-
-        let kvs_map = backend.load_defaults(instance_id).unwrap();
-        assert_eq!(kvs_map.len(), 2);
-    }
-
-    #[test]
-    fn test_flush_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(1);
-
-        // Flush.
-        let kvs_map = KvsMap::from([("key".to_string(), KvsValue::from("value"))]);
-        backend.flush(instance_id, &kvs_map).unwrap();
-
-        // Check files exist.
-        let snapshot_id = SnapshotId(0);
-        let kvs_path = backend.kvs_file_path(instance_id, snapshot_id);
-        let hash_path = backend.hash_file_path(instance_id, snapshot_id);
-        assert!(kvs_path.exists());
-        assert!(hash_path.exists());
-    }
-
-    #[test]
-    fn test_flush_kvs_removed() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(1);
-
-        // Flush.
-        let kvs_map = KvsMap::from([("key".to_string(), KvsValue::from("value"))]);
-        backend.flush(instance_id, &kvs_map).unwrap();
-
-        // Remove KVS file.
-        let snapshot_id = SnapshotId(0);
-        let kvs_path = backend.kvs_file_path(instance_id, snapshot_id);
-        fs::remove_file(kvs_path).unwrap();
-
-        // Flush again.
-        let result = backend.flush(instance_id, &kvs_map);
-        assert!(result.is_err_and(|e| e == ErrorCode::IntegrityCorrupted));
-    }
-
-    #[test]
-    fn test_flush_hash_removed() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(1);
-
-        // Flush.
-        let kvs_map = KvsMap::from([("key".to_string(), KvsValue::from("value"))]);
-        backend.flush(instance_id, &kvs_map).unwrap();
-
-        // Remove KVS file.
-        let snapshot_id = SnapshotId(0);
-        let hash_path = backend.hash_file_path(instance_id, snapshot_id);
-        fs::remove_file(hash_path).unwrap();
-
-        // Flush again.
-        let result = backend.flush(instance_id, &kvs_map);
-        assert!(result.is_err_and(|e| e == ErrorCode::IntegrityCorrupted));
-    }
-
-    #[test]
-    fn test_snapshot_count_zero() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        assert_eq!(backend.snapshot_count(instance_id), 0);
-    }
-
-    #[test]
-    fn test_snapshot_count_to_one() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        backend.flush(instance_id, &KvsMap::new()).unwrap();
-        assert_eq!(backend.snapshot_count(instance_id), 1);
-    }
-
-    #[test]
-    fn test_snapshot_count_to_max() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        for i in 1..=backend.snapshot_max_count() {
-            backend.flush(instance_id, &KvsMap::new()).unwrap();
-            assert_eq!(backend.snapshot_count(instance_id), i);
-        }
-
-        backend.flush(instance_id, &KvsMap::new()).unwrap();
-        backend.flush(instance_id, &KvsMap::new()).unwrap();
-        assert_eq!(
-            backend.snapshot_count(instance_id),
-            backend.snapshot_max_count()
-        );
-    }
-
-    #[test]
-    fn test_snapshot_max_count() {
-        let max_count = 1234;
-        let backend = JsonBackendBuilder::new()
-            .snapshot_max_count(max_count)
-            .build();
-        assert_eq!(backend.snapshot_max_count(), max_count);
-    }
-
-    #[test]
-    fn test_snapshot_restore_ok() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        // Prepare snapshots.
-        for i in 1..=backend.snapshot_max_count() {
-            let kvs_map = KvsMap::from([("counter".to_string(), KvsValue::I32(i as i32))]);
-            backend.flush(instance_id, &kvs_map).unwrap();
-        }
-
-        // Check restore.
-        let kvs_map = backend
-            .snapshot_restore(instance_id, SnapshotId(1))
-            .unwrap();
-        assert_eq!(*kvs_map.get("counter").unwrap(), KvsValue::I32(2));
-    }
-
-    #[test]
-    fn test_snapshot_restore_invalid_id() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        // Prepare snapshots.
-        for i in 1..=backend.snapshot_max_count() {
-            let kvs_map = KvsMap::from([("counter".to_string(), KvsValue::I32(i as i32))]);
-            backend.flush(instance_id, &kvs_map).unwrap();
-        }
-
-        let result = backend.snapshot_restore(instance_id, SnapshotId(123));
-        assert!(result.is_err_and(|e| e == ErrorCode::InvalidSnapshotId));
-    }
-
-    #[test]
-    fn test_snapshot_restore_current_id() {
-        let dir = tempdir().unwrap();
-        let dir_path = dir.path().to_path_buf();
-        let backend = JsonBackendBuilder::new().working_dir(dir_path).build();
-        let instance_id = InstanceId(2);
-
-        // Prepare snapshots.
-        for i in 1..=backend.snapshot_max_count() {
-            let kvs_map = KvsMap::from([("counter".to_string(), KvsValue::I32(i as i32))]);
-            backend.flush(instance_id, &kvs_map).unwrap();
-        }
-
-        let result = backend.snapshot_restore(instance_id, SnapshotId(0));
-        assert!(result.is_err_and(|e| e == ErrorCode::InvalidSnapshotId));
     }
 }

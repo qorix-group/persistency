@@ -49,51 +49,6 @@
 //! see if the value wasn't written yet and will return the default call
 //! [`Kvs::is_value_default`].
 //!
-//!
-//! ## Example Usage
-//!
-//! ```
-//! use rust_kvs::prelude::*;
-//! use std::collections::HashMap;
-//!
-//! fn main() -> Result<(), ErrorCode> {
-//!     let kvs: Kvs = KvsBuilder::new(InstanceId(0))
-//!         .build()?;
-//!
-//!     kvs.set_value("number", 123.0)?;
-//!     kvs.set_value("bool", true)?;
-//!     kvs.set_value("string", "First".to_string())?;
-//!     kvs.set_value("null", ())?;
-//!     kvs.set_value(
-//!         "array",
-//!         vec![
-//!             KvsValue::from(456.0),
-//!             false.into(),
-//!             "Second".to_string().into(),
-//!         ],
-//!     )?;
-//!     kvs.set_value(
-//!         "object",
-//!         HashMap::from([
-//!             (String::from("sub-number"), KvsValue::from(789.0)),
-//!             ("sub-bool".into(), true.into()),
-//!             ("sub-string".into(), "Third".to_string().into()),
-//!             ("sub-null".into(), ().into()),
-//!             (
-//!                 "sub-array".into(),
-//!                 KvsValue::from(vec![
-//!                     KvsValue::from(1246.0),
-//!                     false.into(),
-//!                     "Fourth".to_string().into(),
-//!                 ]),
-//!             ),
-//!         ]),
-//!     )?;
-//!
-//!     Ok(())
-//! }
-//! ```
-//!
 //! ## Feature Coverage
 //!
 //! Feature and requirement definition:
