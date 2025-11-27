@@ -149,8 +149,8 @@ impl KvsApi for Kvs {
     ///   * `ErrorCode::KeyNotFound`: Key wasn't found in KVS nor in defaults
     fn get_value_as<T>(&self, key: &str) -> Result<T, ErrorCode>
     where
-        for<'a> T: TryFrom<&'a KvsValue> + std::clone::Clone,
-        for<'a> <T as TryFrom<&'a KvsValue>>::Error: std::fmt::Debug,
+        for<'a> T: TryFrom<&'a KvsValue> + core::clone::Clone,
+        for<'a> <T as TryFrom<&'a KvsValue>>::Error: core::fmt::Debug,
     {
         let data = self.data.lock()?;
         if let Some(value) = data.kvs_map.get(key) {

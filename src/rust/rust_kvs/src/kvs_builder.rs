@@ -301,7 +301,7 @@ mod kvs_builder_tests {
     use crate::kvs_api::{InstanceId, KvsDefaults, KvsLoad, SnapshotId};
     use crate::kvs_builder::{KvsBuilder, KVS_MAX_INSTANCES, KVS_POOL};
     use crate::kvs_value::{KvsMap, KvsValue};
-    use std::ops::DerefMut;
+    use core::ops::DerefMut;
     use std::path::{Path, PathBuf};
     use std::sync::{LazyLock, Mutex, MutexGuard};
     use tempfile::tempdir;

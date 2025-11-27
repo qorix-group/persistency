@@ -12,7 +12,7 @@
 use crate::error_code::ErrorCode;
 use crate::kvs_api::{InstanceId, SnapshotId};
 use crate::kvs_value::KvsMap;
-use std::any::Any;
+use core::any::Any;
 
 pub trait DynEq: Any {
     fn dyn_eq(&self, other: &dyn Any) -> bool;

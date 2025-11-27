@@ -3,8 +3,8 @@
 //! - Handling external and nested types.
 //! - Usage with KVS.
 
+use core::net::IpAddr;
 use rust_kvs::prelude::*;
-use std::net::IpAddr;
 use tempfile::tempdir;
 
 /// `Point` is used as an example of nested serializable objects.

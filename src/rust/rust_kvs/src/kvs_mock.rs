@@ -80,7 +80,7 @@ impl KvsApi for MockKvs {
     fn get_value_as<T>(&self, key: &str) -> Result<T, ErrorCode>
     where
         for<'a> T: TryFrom<&'a KvsValue> + Clone,
-        for<'a> <T as TryFrom<&'a KvsValue>>::Error: std::fmt::Debug,
+        for<'a> <T as TryFrom<&'a KvsValue>>::Error: core::fmt::Debug,
     {
         if self.fail {
             return Err(ErrorCode::UnmappedError);
@@ -143,10 +143,9 @@ impl KvsApi for MockKvs {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::kvs_api::{KvsApi, SnapshotId};
+    use crate::kvs_mock::MockKvs;
     use crate::kvs_value::KvsValue;
-    use KvsApi;
-    use SnapshotId;
 
     #[test]
     fn test_mock_kvs_pass_and_fail_cases() {
