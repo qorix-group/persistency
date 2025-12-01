@@ -349,7 +349,7 @@ fn _getkvsfilename(kvs: Kvs, mut args: Arguments) -> Result<(), ErrorCode> {
     };
     let snapshot_id = SnapshotId(snapshot_id as usize);
     let filename = kvs.get_kvs_filename(snapshot_id)?;
-    println!("KVS Filename: {}", filename.display());
+    println!("KVS Filename: {:?}", filename);
     println!("----------------------");
     Ok(())
 }
@@ -371,7 +371,7 @@ fn _gethashfilename(kvs: Kvs, mut args: Arguments) -> Result<(), ErrorCode> {
     };
     let snapshot_id = SnapshotId(snapshot_id as usize);
     let filename = kvs.get_hash_filename(snapshot_id);
-    println!("Hash Filename: {}", filename?.display());
+    println!("Hash Filename: {:?}", filename?);
     println!("----------------------");
     Ok(())
 }
@@ -445,7 +445,7 @@ fn init_logging() {
         .unwrap();
 
     #[cfg(feature = "score-log")]
-    mw_log_subscriber::MwLoggerBuilder::new().set_as_default_logger::<false, true, false>();
+    mw_log_subscriber::MwLoggerBuilder::new().set_as_default_logger();
 }
 
 /// Main function to run the KVS tool command line interface.

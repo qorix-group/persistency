@@ -33,8 +33,9 @@ pub(crate) struct KvsData {
 }
 
 impl From<PoisonError<MutexGuard<'_, KvsData>>> for ErrorCode {
-    fn from(cause: PoisonError<MutexGuard<'_, KvsData>>) -> Self {
-        error!("KVS data lock failed: {cause:?}");
+    fn from(_cause: PoisonError<MutexGuard<'_, KvsData>>) -> Self {
+        // TODO: reinvestigate.
+        // error!("KVS data lock failed: {:?}", cause);
         ErrorCode::MutexLockFailed
     }
 }
@@ -52,8 +53,9 @@ static KVS_POOL: LazyLock<Mutex<[Option<KvsInner>; KVS_MAX_INSTANCES]>> =
     LazyLock::new(|| Mutex::new([const { None }; KVS_MAX_INSTANCES]));
 
 impl From<PoisonError<MutexGuard<'_, [Option<KvsInner>; KVS_MAX_INSTANCES]>>> for ErrorCode {
-    fn from(cause: PoisonError<MutexGuard<'_, [Option<KvsInner>; KVS_MAX_INSTANCES]>>) -> Self {
-        error!("KVS instance pool lock failed: {cause:?}");
+    fn from(_cause: PoisonError<MutexGuard<'_, [Option<KvsInner>; KVS_MAX_INSTANCES]>>) -> Self {
+        // TODO: reinvestigate.
+        // error!("KVS instance pool lock failed: {:?}", cause);
         ErrorCode::MutexLockFailed
     }
 }
@@ -161,7 +163,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
     /// # Return Values
     ///   * KvsBuilder instance
     pub fn defaults(mut self, mode: KvsDefaults) -> Self {
-        trace!("\"defaults\" set to {mode:?}");
+        trace!("\"defaults\" set to {:?}", mode);
         self.parameters.defaults = Some(mode);
         self
     }
@@ -174,7 +176,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
     /// # Return Values
     ///   * KvsBuilder instance
     pub fn kvs_load(mut self, mode: KvsLoad) -> Self {
-        trace!("\"kvs_load\" set to {mode:?}");
+        trace!("\"kvs_load\" set to {:?}", mode);
         self.parameters.kvs_load = Some(mode);
         self
     }
@@ -188,7 +190,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
     ///   * KvsBuilder instance
     pub fn dir<P: Into<String>>(mut self, dir: P) -> Self {
         let working_dir = PathBuf::from(dir.into());
-        trace!("\"dir\" set to {working_dir:?}");
+        trace!("\"dir\" set to {:?}", working_dir);
         self.parameters.working_dir = Some(working_dir);
         self
     }
@@ -201,7 +203,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
     /// # Return Values
     ///   * KvsBuilder instance
     pub fn snapshot_max_count(mut self, snapshot_max_count: usize) -> Self {
-        trace!("\"snapshot_max_count\" set to {snapshot_max_count:?}");
+        trace!("\"snapshot_max_count\" set to {:?}", snapshot_max_count);
         self.parameters.snapshot_max_count = Some(snapshot_max_count);
         self
     }
@@ -256,7 +258,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
                 },
                 // Instance ID out of range.
                 None => {
-                    error!("Provided instance ID is out of range: {instance_id}");
+                    error!("Provided instance ID is out of range: {}", instance_id);
                     Err(ErrorCode::InvalidInstanceId)
                 }
             }?;
@@ -327,7 +329,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvsBuilder<Backe
                 Some(entry) => entry,
                 None => {
                     // Unlikely - this was checked previously.
-                    error!("Provided instance ID is out of range: {instance_id}");
+                    error!("Provided instance ID is out of range: {}", instance_id);
                     return Err(ErrorCode::InvalidInstanceId);
                 }
             };

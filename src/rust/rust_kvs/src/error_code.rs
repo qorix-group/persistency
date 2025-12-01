@@ -11,7 +11,7 @@
 
 extern crate alloc;
 
-use crate::log::error;
+// use crate::log::error;
 use alloc::string::FromUtf8Error;
 use core::array::TryFromSliceError;
 
@@ -94,7 +94,8 @@ impl From<std::io::Error> for ErrorCode {
         match kind {
             std::io::ErrorKind::NotFound => ErrorCode::FileNotFound,
             _ => {
-                error!("Unmapped IO error: {kind}");
+                // TODO: common impl.
+                // error!("Unmapped IO error: {}", kind);
                 ErrorCode::UnmappedError
             }
         }
@@ -102,23 +103,97 @@ impl From<std::io::Error> for ErrorCode {
 }
 
 impl From<FromUtf8Error> for ErrorCode {
-    fn from(cause: FromUtf8Error) -> Self {
-        error!("Conversion from UTF-8 failed: {cause:#?}");
+    fn from(_cause: FromUtf8Error) -> Self {
+        // TODO: common impl.
+        // error!("Conversion from UTF-8 failed: {:#?}", cause);
         ErrorCode::ConversionFailed
     }
 }
 
 impl From<TryFromSliceError> for ErrorCode {
-    fn from(cause: TryFromSliceError) -> Self {
-        error!("Conversion from slice failed: {cause:#?}");
+    fn from(_cause: TryFromSliceError) -> Self {
+        // TODO: common impl.
+        // error!("Conversion from slice failed: {:#?}", cause);
         ErrorCode::ConversionFailed
     }
 }
 
 impl From<Vec<u8>> for ErrorCode {
-    fn from(cause: Vec<u8>) -> Self {
-        error!("Conversion from vector of u8 failed: {cause:#?}");
+    fn from(_cause: Vec<u8>) -> Self {
+        // TODO: common impl.
+        // error!("Conversion from vector of u8 failed: {:#?}", cause);
         ErrorCode::ConversionFailed
+    }
+}
+
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDebug for ErrorCode {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        match self {
+            ErrorCode::UnmappedError => mw_log::fmt::score_write!(f, "ErrorCode::UnmappedError"),
+            ErrorCode::FileNotFound => mw_log::fmt::score_write!(f, "ErrorCode::FileNotFound"),
+            ErrorCode::KvsFileReadError => {
+                mw_log::fmt::score_write!(f, "ErrorCode::KvsFileReadError")
+            }
+            ErrorCode::KvsHashFileReadError => {
+                mw_log::fmt::score_write!(f, "ErrorCode::KvsHashFileReadError")
+            }
+            ErrorCode::JsonParserError => {
+                mw_log::fmt::score_write!(f, "ErrorCode::JsonParserError")
+            }
+            ErrorCode::JsonGeneratorError => {
+                mw_log::fmt::score_write!(f, "ErrorCode::JsonGeneratorError")
+            }
+            ErrorCode::PhysicalStorageFailure => {
+                mw_log::fmt::score_write!(f, "ErrorCode::PhysicalStorageFailure")
+            }
+            ErrorCode::IntegrityCorrupted => {
+                mw_log::fmt::score_write!(f, "ErrorCode::IntegrityCorrupted")
+            }
+            ErrorCode::ValidationFailed => {
+                mw_log::fmt::score_write!(f, "ErrorCode::ValidationFailed")
+            }
+            ErrorCode::EncryptionFailed => {
+                mw_log::fmt::score_write!(f, "ErrorCode::EncryptionFailed")
+            }
+            ErrorCode::ResourceBusy => mw_log::fmt::score_write!(f, "ErrorCode::ResourceBusy"),
+            ErrorCode::OutOfStorageSpace => {
+                mw_log::fmt::score_write!(f, "ErrorCode::OutOfStorageSpace")
+            }
+            ErrorCode::QuotaExceeded => mw_log::fmt::score_write!(f, "ErrorCode::QuotaExceeded"),
+            ErrorCode::AuthenticationFailed => {
+                mw_log::fmt::score_write!(f, "ErrorCode::AuthenticationFailed")
+            }
+            ErrorCode::KeyNotFound => mw_log::fmt::score_write!(f, "ErrorCode::KeyNotFound"),
+            ErrorCode::KeyDefaultNotFound => {
+                mw_log::fmt::score_write!(f, "ErrorCode::KeyDefaultNotFound")
+            }
+            ErrorCode::SerializationFailed(msg) => {
+                mw_log::fmt::score_write!(f, "ErrorCode::SerializationFailed({})", msg)
+            }
+            ErrorCode::DeserializationFailed(msg) => {
+                mw_log::fmt::score_write!(f, "ErrorCode::DeserializationFailed({})", msg)
+            }
+            ErrorCode::InvalidSnapshotId => {
+                mw_log::fmt::score_write!(f, "ErrorCode::InvalidSnapshotId")
+            }
+            ErrorCode::InvalidInstanceId => {
+                mw_log::fmt::score_write!(f, "ErrorCode::InvalidInstanceId")
+            }
+            ErrorCode::ConversionFailed => {
+                mw_log::fmt::score_write!(f, "ErrorCode::ConversionFailed")
+            }
+            ErrorCode::MutexLockFailed => {
+                mw_log::fmt::score_write!(f, "ErrorCode::MutexLockFailed")
+            }
+            ErrorCode::InstanceParametersMismatch => {
+                mw_log::fmt::score_write!(f, "ErrorCode::InstanceParametersMismatch")
+            }
+        }
     }
 }
 

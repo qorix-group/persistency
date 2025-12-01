@@ -113,19 +113,26 @@ git_override(
 )
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
-git_override(
+local_path_override(
     module_name = "score_baselibs_rust",
-    branch = "arkjedrz_mw-log-main",
-    remote = "https://github.com/qorix-group/baselibs_rust.git",
+    path = "../baselibs_rust",
 )
-
+# git_override(
+#     module_name = "score_baselibs_rust",
+#     branch = "arkjedrz_mw-log-main",
+#     remote = "https://github.com/qorix-group/baselibs_rust.git",
+# )
 
 bazel_dep(name = "score_logging", version = "0.0.3")
-git_override(
+local_path_override(
     module_name = "score_logging",
-    commit = "95f8e005713590820e8ed62144bfcf5b4c3becf9",
-    remote = "https://github.com/qorix-group/logging.git",
+    path = "../logging",
 )
+# git_override(
+#     module_name = "score_logging",
+#     commit = "95f8e005713590820e8ed62144bfcf5b4c3becf9",
+#     remote = "https://github.com/qorix-group/logging.git",
+# )
 
 ## additional settings / config
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")

@@ -51,6 +51,24 @@ impl KvsParameters {
     }
 }
 
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDebug for KvsParameters {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        mw_log::fmt::score_write!(f, "KvsParameters {{ ")?;
+        mw_log::fmt::score_write!(f, "instance_id: {:?}, ", self.instance_id)?;
+        mw_log::fmt::score_write!(f, "defaults: {:?}, ", self.defaults)?;
+        mw_log::fmt::score_write!(f, "kvs_load: {:?}, ", self.kvs_load)?;
+        mw_log::fmt::score_write!(f, "working_dir: {:?}", self.working_dir)?;
+        mw_log::fmt::score_write!(f, "snapshot_max_count: {:?}", self.snapshot_max_count)?;
+        mw_log::fmt::score_write!(f, " }}")?;
+        Ok(())
+    }
+}
+
 /// Key-value-storage data
 pub struct GenericKvs<Backend: KvsBackend, PathResolver: KvsPathResolver = Backend> {
     /// KVS instance data.
@@ -118,7 +136,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> GenericKvs<Backend, Pat
                 new_snapshot_id,
             );
 
-            debug!("Rotating snapshots: {snap_name_old} -> {snap_name_new}");
+            debug!("Rotating snapshots: {} -> {}", snap_name_old, snap_name_new);
 
             // Check snapshot and hash files exist.
             let snap_old_exists = snap_path_old.exists();
@@ -171,7 +189,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
     fn reset_key(&self, key: &str) -> Result<(), ErrorCode> {
         let mut data = self.data.lock()?;
         if !data.defaults_map.contains_key(key) {
-            error!("Resetting key without a default value: {key}");
+            error!("Resetting key without a default value: {}", key);
             return Err(ErrorCode::KeyDefaultNotFound);
         }
 
@@ -222,7 +240,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         } else if let Some(value) = data.defaults_map.get(key) {
             Ok(value.clone())
         } else {
-            error!("Key not found: {key}");
+            error!("Key not found: {}", key);
             Err(ErrorCode::KeyNotFound)
         }
     }
@@ -252,8 +270,9 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         if let Some(value) = data.kvs_map.get(key) {
             match T::try_from(value) {
                 Ok(value) => Ok(value),
-                Err(err) => {
-                    error!("Failed to convert KVS value: {err:#?}");
+                Err(_err) => {
+                    // TODO: reinvestigate
+                    // error!("Failed to convert KVS value: {:#?}", err);
                     Err(ErrorCode::ConversionFailed)
                 }
             }
@@ -261,13 +280,14 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
             // check if key has a default value
             match T::try_from(value) {
                 Ok(value) => Ok(value),
-                Err(err) => {
-                    error!("Failed to convert default value: {err:#?}");
+                Err(_err) => {
+                    // TODO: reinvestigate
+                    // error!("Failed to convert default value: {:#?}", err);
                     Err(ErrorCode::ConversionFailed)
                 }
             }
         } else {
-            error!("Key not found: {key}");
+            error!("Key not found: {}", key);
             Err(ErrorCode::KeyNotFound)
         }
     }
@@ -289,7 +309,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         if let Some(value) = data.defaults_map.get(key) {
             Ok(value.clone())
         } else {
-            error!("Key not found: {key}");
+            error!("Key not found: {}", key);
             Err(ErrorCode::KeyNotFound)
         }
     }
@@ -314,7 +334,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         } else if data.defaults_map.contains_key(key) {
             Ok(true)
         } else {
-            error!("Key not found: {key}");
+            error!("Key not found: {}", key);
             Err(ErrorCode::KeyNotFound)
         }
     }
@@ -352,7 +372,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         if data.kvs_map.remove(key).is_some() {
             Ok(())
         } else {
-            error!("Key not found: {key}");
+            error!("Key not found: {}", key);
             Err(ErrorCode::KeyNotFound)
         }
     }
@@ -377,7 +397,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
         }
 
         self.snapshot_rotate().map_err(|e| {
-            error!("Failed to rotate snapshots: {e:?}");
+            error!("Failed to rotate snapshots: {:?}", e);
             e
         })?;
         let snapshot_id = SnapshotId(0);
@@ -394,7 +414,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
 
         let data = self.data.lock()?;
         Backend::save_kvs(&data.kvs_map, &kvs_path, &hash_path).map_err(|e| {
-            error!("Failed to save snapshot: {e:?}");
+            error!("Failed to save snapshot: {:?}", e);
             e
         })?;
         Ok(())
@@ -474,7 +494,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
             snapshot_id,
         );
         data.kvs_map = Backend::load_kvs(&kvs_path, &hash_path).map_err(|e| {
-            error!("Failed to load snapshot: {e:?}");
+            error!("Failed to load snapshot: {:?}", e);
             e
         })?;
 
@@ -496,7 +516,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
             snapshot_id,
         );
         if !path.exists() {
-            error!("File not found: {}", path.display());
+            error!("File not found: {:?}", path);
             Err(ErrorCode::FileNotFound)
         } else {
             Ok(path)
@@ -518,7 +538,7 @@ impl<Backend: KvsBackend, PathResolver: KvsPathResolver> KvsApi
             snapshot_id,
         );
         if !path.exists() {
-            error!("File not found: {}", path.display());
+            error!("File not found: {:?}", path);
             Err(ErrorCode::FileNotFound)
         } else {
             Ok(path)

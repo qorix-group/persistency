@@ -11,16 +11,37 @@
 
 use crate::error_code::ErrorCode;
 use crate::kvs_value::KvsValue;
-use core::fmt;
 use std::path::PathBuf;
 
 /// Instance ID
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct InstanceId(pub usize);
 
-impl fmt::Display for InstanceId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for InstanceId {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDisplay for InstanceId {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        mw_log::fmt::score_write!(f, "{}", *self)
+    }
+}
+
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDebug for InstanceId {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        mw_log::fmt::ScoreDisplay::fmt(self, f, spec)
     }
 }
 
@@ -34,9 +55,20 @@ impl From<InstanceId> for usize {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SnapshotId(pub usize);
 
-impl fmt::Display for SnapshotId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl core::fmt::Display for SnapshotId {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDisplay for SnapshotId {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        mw_log::fmt::score_write!(f, "{}", *self)
     }
 }
 
@@ -59,6 +91,22 @@ pub enum KvsDefaults {
     Required,
 }
 
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDebug for KvsDefaults {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        let result = match *self {
+            KvsDefaults::Ignored => "KvsDefaults::Ignored",
+            KvsDefaults::Optional => "KvsDefaults::Optional",
+            KvsDefaults::Required => "KvsDefaults::Required",
+        };
+        mw_log::fmt::score_write!(f, "{}", result)
+    }
+}
+
 /// KVS load mode.
 #[derive(Clone, Debug, PartialEq)]
 pub enum KvsLoad {
@@ -70,6 +118,22 @@ pub enum KvsLoad {
 
     /// KVS must be loaded.
     Required,
+}
+
+#[cfg(feature = "score-log")]
+impl mw_log::fmt::ScoreDebug for KvsLoad {
+    fn fmt(
+        &self,
+        f: &mut dyn mw_log::fmt::ScoreWrite,
+        _spec: &mw_log::fmt::FormatSpec,
+    ) -> mw_log::fmt::Result {
+        let result = match *self {
+            KvsLoad::Ignored => "KvsLoad::Ignored",
+            KvsLoad::Optional => "KvsLoad::Optional",
+            KvsLoad::Required => "KvsLoad::Required",
+        };
+        mw_log::fmt::score_write!(f, "{}", result)
+    }
 }
 
 pub trait KvsApi {
