@@ -25,12 +25,11 @@ build --tool_java_language_version=17
 build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
 
+build --@score_baselibs_rust//src/log:safety_level=qm
 build --@score_baselibs//score/json:base_library=nlohmann
 build --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 
-# ToDo: needed for "wrong" implicit dependencies
-build --@score-baselibs//score/json:base_library=nlohmann
-build --@score-baselibs//score/mw/log/flags:KRemote_Logging=False
+common --extra_toolchains=@gcc_toolchain//:host_gcc_12
 
 # Clippy linting (enabled by default)
 build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
