@@ -29,7 +29,8 @@ build --@score_baselibs_rust//src/log:safety_level=qm
 build --@score_baselibs//score/json:base_library=nlohmann
 build --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 
-common --extra_toolchains=@gcc_toolchain//:host_gcc_12
+# XXX: C++ deps are not able to build without this.
+# common --extra_toolchains=@gcc_toolchain//:host_gcc_12
 
 # Clippy linting (enabled by default)
 build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
