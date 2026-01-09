@@ -12,16 +12,16 @@
  ********************************************************************************/
 #pragma once
 
-#include <optional>
-#include <string>
+#include <kvs.hpp>
 
-#include <scenario.hpp>
+struct KvsParameters {
+    /// Parse `KvsParameters` from JSON string.
+    /// JSON is expected to contain `kvs_parameters` field.
+    static KvsParameters from_json(const std::string& json_str);
 
-class BasicScenario final : public Scenario {
-   public:
-    ~BasicScenario() final = default;
-
-    std::string name() const final;
-
-    void run(const std::string& input) const final;
+    score::mw::per::kvs::InstanceId instance_id;
+    std::optional<bool> need_defaults;
+    std::optional<bool> need_kvs;
+    std::optional<std::string> dir;
+    std::optional<size_t> snapshot_max_count;
 };
