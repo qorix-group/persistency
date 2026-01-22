@@ -27,9 +27,14 @@ on:
       - main
   merge_group:
     types: [checks_requested]
+  workflow_run:
+    workflows: ["Component Integration Tests"]
+    types:
+      - completed
 
 jobs:
   build-docs:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     permissions:
       contents: write
