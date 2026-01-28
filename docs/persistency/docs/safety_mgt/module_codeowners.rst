@@ -26,7 +26,7 @@ Assigned Committer(s)
 =====================
 
 According to `Persistency Module Codeowners <https://github.com/eclipse-score/persistency/blob/main/.github/CODEOWNERS>`_
-the following committers are assigned to guard the Persistency repository:
+the following committer is assigned to guard the Persistency repository:
 
 - `<https://github.com/vinodreddy-g>`_
 
