@@ -96,7 +96,7 @@ impl From<std::io::Error> for ErrorCode {
             _ => {
                 eprintln!("error: unmapped error: {kind}");
                 ErrorCode::UnmappedError
-            }
+            },
         }
     }
 }

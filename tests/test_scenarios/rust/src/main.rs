@@ -26,13 +26,8 @@ use tracing_subscriber::FmtSubscriber;
 struct NumericUnixTime;
 
 impl FormatTime for NumericUnixTime {
-    fn format_time(
-        &self,
-        w: &mut tracing_subscriber::fmt::format::Writer<'_>,
-    ) -> core::fmt::Result {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default();
+    fn format_time(&self, w: &mut tracing_subscriber::fmt::format::Writer<'_>) -> core::fmt::Result {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default();
         write!(w, "{}", now.as_secs())
     }
 }
@@ -45,8 +40,7 @@ fn init_tracing_subscriber() {
         .json()
         .finish();
 
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("Setting default subscriber failed!");
+    tracing::subscriber::set_global_default(subscriber).expect("Setting default subscriber failed!");
 }
 
 fn main() -> Result<(), String> {
@@ -54,21 +48,13 @@ fn main() -> Result<(), String> {
 
     // Basic group.
     let basic_scenario = Box::new(BasicScenario);
-    let basic_group = Box::new(ScenarioGroupImpl::new(
-        "basic",
-        vec![basic_scenario],
-        vec![],
-    ));
+    let basic_group = Box::new(ScenarioGroupImpl::new("basic", vec![basic_scenario], vec![]));
 
     // CIT group.
     let cit_group = cit_scenario_group();
 
     // Root group.
-    let root_group = Box::new(ScenarioGroupImpl::new(
-        "root",
-        vec![],
-        vec![basic_group, cit_group],
-    ));
+    let root_group = Box::new(ScenarioGroupImpl::new("root", vec![], vec![basic_group, cit_group]));
 
     // Run.
     init_tracing_subscriber();

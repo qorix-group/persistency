@@ -84,11 +84,7 @@ pub trait KvsApi {
         for<'a> <T as TryFrom<&'a KvsValue>>::Error: core::fmt::Debug;
     fn get_default_value(&self, key: &str) -> Result<KvsValue, ErrorCode>;
     fn is_value_default(&self, key: &str) -> Result<bool, ErrorCode>;
-    fn set_value<S: Into<String>, J: Into<KvsValue>>(
-        &self,
-        key: S,
-        value: J,
-    ) -> Result<(), ErrorCode>;
+    fn set_value<S: Into<String>, J: Into<KvsValue>>(&self, key: S, value: J) -> Result<(), ErrorCode>;
     fn remove_key(&self, key: &str) -> Result<(), ErrorCode>;
     fn flush(&self) -> Result<(), ErrorCode>;
     fn snapshot_count(&self) -> usize;

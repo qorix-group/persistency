@@ -71,12 +71,7 @@ impl KvsApi for MockKvs {
         if self.fail {
             return Err(ErrorCode::UnmappedError);
         }
-        self.map
-            .lock()
-            .unwrap()
-            .get(key)
-            .cloned()
-            .ok_or(ErrorCode::KeyNotFound)
+        self.map.lock().unwrap().get(key).cloned().ok_or(ErrorCode::KeyNotFound)
     }
     fn get_value_as<T>(&self, key: &str) -> Result<T, ErrorCode>
     where
@@ -101,11 +96,7 @@ impl KvsApi for MockKvs {
         }
         Ok(false)
     }
-    fn set_value<S: Into<String>, V: Into<KvsValue>>(
-        &self,
-        key: S,
-        value: V,
-    ) -> Result<(), ErrorCode> {
+    fn set_value<S: Into<String>, V: Into<KvsValue>>(&self, key: S, value: V) -> Result<(), ErrorCode> {
         if self.fail {
             return Err(ErrorCode::UnmappedError);
         }

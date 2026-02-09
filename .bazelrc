@@ -31,9 +31,9 @@ build --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 common --extra_toolchains=@gcc_toolchain//:host_gcc_12
 
 # Clippy linting (enabled by default)
-build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
-build --output_groups=+clippy_checks
-build --@rules_rust//rust/settings:clippy.toml=@score_rust_policies//clippy/strict:clippy.toml
+build --aspects=@score_rust_policies//clippy:linters.bzl%clippy_strict
+build --output_groups=+rules_lint_human
+build:lint --@aspect_rules_lint//lint:fail_on_violation=true
 
 test --test_output=errors
 

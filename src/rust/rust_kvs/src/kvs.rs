@@ -158,22 +158,18 @@ impl KvsApi for Kvs {
             match T::try_from(value) {
                 Ok(value) => Ok(value),
                 Err(err) => {
-                    eprintln!(
-                        "error: get_value could not convert KvsValue from KVS store: {err:#?}"
-                    );
+                    eprintln!("error: get_value could not convert KvsValue from KVS store: {err:#?}");
                     Err(ErrorCode::ConversionFailed)
-                }
+                },
             }
         } else if let Some(value) = data.defaults_map.get(key) {
             // check if key has a default value
             match T::try_from(value) {
                 Ok(value) => Ok(value),
                 Err(err) => {
-                    eprintln!(
-                        "error: get_value could not convert KvsValue from default store: {err:#?}"
-                    );
+                    eprintln!("error: get_value could not convert KvsValue from default store: {err:#?}");
                     Err(ErrorCode::ConversionFailed)
-                }
+                },
             }
         } else {
             eprintln!("error: get_value could not find key: {key}");
@@ -236,11 +232,7 @@ impl KvsApi for Kvs {
     /// # Return Values
     ///   * Ok: Value was assigned to key
     ///   * `ErrorCode::MutexLockFailed`: Mutex locking failed
-    fn set_value<S: Into<String>, V: Into<KvsValue>>(
-        &self,
-        key: S,
-        value: V,
-    ) -> Result<(), ErrorCode> {
+    fn set_value<S: Into<String>, V: Into<KvsValue>>(&self, key: S, value: V) -> Result<(), ErrorCode> {
         let mut data = self.data.lock()?;
         data.kvs_map.insert(key.into(), value.into());
         Ok(())
@@ -294,9 +286,7 @@ impl KvsApi for Kvs {
     /// # Return Values
     ///   * usize: Count of found snapshots
     fn snapshot_count(&self) -> usize {
-        self.parameters
-            .backend
-            .snapshot_count(self.parameters.instance_id)
+        self.parameters.backend.snapshot_count(self.parameters.instance_id)
     }
 
     /// Return maximum number of snapshots to store.
@@ -353,11 +343,7 @@ mod kvs_tests {
     struct MockBackend;
 
     impl KvsBackend for MockBackend {
-        fn load_kvs(
-            &self,
-            _instance_id: InstanceId,
-            _snapshot_id: SnapshotId,
-        ) -> Result<KvsMap, ErrorCode> {
+        fn load_kvs(&self, _instance_id: InstanceId, _snapshot_id: SnapshotId) -> Result<KvsMap, ErrorCode> {
             unimplemented!()
         }
 
@@ -377,21 +363,14 @@ mod kvs_tests {
             unimplemented!()
         }
 
-        fn snapshot_restore(
-            &self,
-            _instance_id: InstanceId,
-            _snapshot_id: SnapshotId,
-        ) -> Result<KvsMap, ErrorCode> {
+        fn snapshot_restore(&self, _instance_id: InstanceId, _snapshot_id: SnapshotId) -> Result<KvsMap, ErrorCode> {
             unimplemented!()
         }
     }
 
     fn get_kvs(backend: Box<dyn KvsBackend>, kvs_map: KvsMap, defaults_map: KvsMap) -> Kvs {
         let instance_id = InstanceId(1);
-        let data = Arc::new(Mutex::new(KvsData {
-            kvs_map,
-            defaults_map,
-        }));
+        let data = Arc::new(Mutex::new(KvsData { kvs_map, defaults_map }));
         let parameters = Arc::new(KvsParameters {
             instance_id,
             defaults: KvsDefaults::Optional,
@@ -429,10 +408,7 @@ mod kvs_tests {
 
         kvs.reset().unwrap();
         assert_eq!(kvs.get_all_keys().unwrap().len(), 0);
-        assert_eq!(
-            kvs.get_value_as::<String>("example1").unwrap(),
-            "default_value"
-        );
+        assert_eq!(kvs.get_value_as::<String>("example1").unwrap(), "default_value");
         assert!(kvs
             .get_value_as::<bool>("example2")
             .is_err_and(|e| e == ErrorCode::KeyNotFound));
@@ -451,10 +427,7 @@ mod kvs_tests {
         );
 
         kvs.reset_key("example1").unwrap();
-        assert_eq!(
-            kvs.get_value_as::<String>("example1").unwrap(),
-            "default_value"
-        );
+        assert_eq!(kvs.get_value_as::<String>("example1").unwrap(), "default_value");
 
         // TODO: determine why resetting entry without default value is an error.
         assert!(kvs
@@ -552,9 +525,7 @@ mod kvs_tests {
             KvsMap::from([("example1".to_string(), KvsValue::from("default_value"))]),
         );
 
-        assert!(kvs
-            .get_value("invalid_key")
-            .is_err_and(|e| e == ErrorCode::KeyNotFound));
+        assert!(kvs.get_value("invalid_key").is_err_and(|e| e == ErrorCode::KeyNotFound));
     }
 
     #[test]
