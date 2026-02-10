@@ -42,6 +42,32 @@ genrule(
     visibility = ["//visibility:public"],
 )
 
+# Stage C++ demo binary
+genrule(
+    name = "stage_cpp_demo",
+    srcs = ["//src/cpp/src:demo"],
+    outs = ["install/usr/bin/cpp_demo"],
+    cmd = """
+      mkdir -p $(RULEDIR)/install/usr/bin
+      cp $(location //src/cpp/src:demo) $@
+      chmod +x $@
+    """,
+    visibility = ["//visibility:public"],
+)
+
+# Stage Rust demo binary
+genrule(
+    name = "stage_rust_demo",
+    srcs = ["//src/rust/rust_kvs:demo"],
+    outs = ["install/usr/bin/rust_demo"],
+    cmd = """
+      mkdir -p $(RULEDIR)/install/usr/bin
+      cp $(location //src/rust/rust_kvs:demo) $@
+      chmod +x $@
+    """,
+    visibility = ["//visibility:public"],
+)
+
 # Stage the integration test script that exercises kvs_tool.
 # Put the script next to this BUILD file as kvs_test.sh (see snippet below).
 genrule(

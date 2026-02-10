@@ -10,7 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
 rust_library(
     name = "rust_kvs",
@@ -30,4 +30,14 @@ rust_test(
         "ut",
     ],
     deps = ["@score_crates//:tempfile"],
+)
+
+rust_binary(
+    name = "demo",
+    srcs = ["examples/demo.rs"],
+    deps = [
+        ":rust_kvs",
+        "@score_crates//:tempfile",
+    ],
+    visibility = ["//visibility:public"],
 )

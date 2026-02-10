@@ -53,3 +53,19 @@ cc_library(
         "@score_baselibs//score/result",
     ],
 )
+
+cc_binary(
+    name = "demo",
+    srcs = [
+        "demo.cpp",
+    ],
+    deps = [
+        ":kvs_cpp",
+        ":kvsvalue",
+        "//src/cpp/src/internal:error",
+        "@score_baselibs//score/filesystem",
+        "@score_baselibs//score/json",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
+    ],
+)
