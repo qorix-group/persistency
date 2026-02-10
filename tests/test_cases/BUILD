@@ -54,7 +54,7 @@ score_py_pytest(
     env = {
         "RUST_BACKTRACE": "1",
     },
-    pytest_config = "//tests/test_cases:pytest.ini",
+    pytest_config = "//:pyproject.toml",
     deps = all_requirements,
 )
 
@@ -74,7 +74,7 @@ score_py_pytest(
     env = {
         "RUST_BACKTRACE": "1",
     },
-    pytest_config = "//tests/test_cases:pytest.ini",
+    pytest_config = "//:pyproject.toml",
     deps = all_requirements,
 )
 

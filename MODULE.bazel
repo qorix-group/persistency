@@ -82,10 +82,15 @@ bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "score_baselibs", version = "0.1.2")
 bazel_dep(name = "score_bazel_platforms", version = "0.0.3")
 
-bazel_dep(name = "score_docs_as_code", version = "2.3.0", dev_dependency = True)
+bazel_dep(name = "score_docs_as_code", version = "3.0.0", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.2", dev_dependency = True)
-bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
+git_override(
+    module_name = "score_platform",
+    commit = "7d252e75b733b09225f1a383bb00d5d7d79fa5ae",  # override with main until next release
+    remote = "https://github.com/eclipse-score/score.git",
+)
 
+bazel_dep(name = "score_process", version = "1.4.3")
 bazel_dep(name = "score_python_basics", version = "0.3.4")
 bazel_dep(name = "score_tooling", version = "1.1.0")
 

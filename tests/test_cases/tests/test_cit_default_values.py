@@ -94,7 +94,7 @@ class DefaultValuesScenario(CommonScenario):
         "comp_req__persistency__default_value_query_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required", "without"], scope="class")
 class TestDefaultValues(DefaultValuesScenario):
@@ -172,7 +172,7 @@ class TestDefaultValues(DefaultValuesScenario):
         "comp_req__persistency__default_value_types_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required", "without"], scope="class")
 class TestRemoveKey(DefaultValuesScenario):
@@ -257,7 +257,7 @@ class TestRemoveKey(DefaultValuesScenario):
         "comp_req__persistency__default_value_types_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestMalformedDefaultsFile(DefaultValuesScenario):
@@ -326,7 +326,7 @@ class TestMalformedDefaultsFile(DefaultValuesScenario):
         "comp_req__persistency__default_value_types_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["required"], scope="class")
 class TestMissingDefaultsFile(DefaultValuesScenario):
@@ -364,7 +364,7 @@ class TestMissingDefaultsFile(DefaultValuesScenario):
         "comp_req__persistency__default_value_types_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestResetAllKeys(DefaultValuesScenario):
@@ -430,7 +430,7 @@ class TestResetAllKeys(DefaultValuesScenario):
         "comp_req__persistency__default_value_cfg_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestResetSingleKey(DefaultValuesScenario):
@@ -512,7 +512,7 @@ class TestResetSingleKey(DefaultValuesScenario):
         "comp_req__persistency__default_value_cfg_v2",
     ],
     test_type="requirements-based",
-    derivation_technique="requirements-based",
+    derivation_technique="requirements-analysis",
 )
 @pytest.mark.parametrize("defaults", ["optional", "required"], scope="class")
 class TestChecksumOnProvidedDefaults(DefaultValuesScenario):
