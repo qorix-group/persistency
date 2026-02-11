@@ -34,6 +34,8 @@ int main() {
         // 1. Create Persistency instance
         std::cout << "1. Creating Persistency instance..." << std::endl;
         auto kvs_result = score::mw::per::kvs::KvsBuilder(instance_id)
+            .need_defaults_flag(false)
+            .need_kvs_flag(false)
             .dir(temp_dir.string())
             .build();
         if (!kvs_result) {
@@ -66,13 +68,13 @@ int main() {
             std::cerr << "Failed to get value" << std::endl;
             return 1;
         }
-        auto read_value = get_result.value().as_string();
-        if (!read_value) {
-            std::cerr << "Failed to convert value to string" << std::endl;
+        if (get_result.value().getType() != score::mw::per::kvs::KvsValue::Type::String) {
+            std::cerr << "Read value is not a string" << std::endl;
             return 1;
         }
-        std::cout << "   Read: " << key << " = " << read_value.value() << std::endl;
-        if (read_value.value() != initial_value) {
+        auto read_value = std::get<std::string>(get_result.value().getValue());
+        std::cout << "   Read: " << key << " = " << read_value << std::endl;
+        if (read_value != initial_value) {
             std::cerr << "Value mismatch!" << std::endl;
             return 1;
         }
@@ -101,7 +103,7 @@ int main() {
             return 1;
         }
         // Restore to previous snapshot
-        auto restore_result = kvs.snapshot_restore(score::mw::per::kvs::SnapshotId(1));
+        auto restore_result = kvs.snapshot_restore(score::mw::per::kvs::SnapshotId(0));
         if (!restore_result) {
             std::cerr << "Failed to restore snapshot" << std::endl;
             return 1;
@@ -115,13 +117,13 @@ int main() {
             std::cerr << "Failed to get restored value" << std::endl;
             return 1;
         }
-        auto restored_value = get_restored_result.value().as_string();
-        if (!restored_value) {
-            std::cerr << "Failed to convert restored value to string" << std::endl;
+        if (get_restored_result.value().getType() != score::mw::per::kvs::KvsValue::Type::String) {
+            std::cerr << "Restored value is not a string" << std::endl;
             return 1;
         }
-        std::cout << "   Read after restore: " << key << " = " << restored_value.value() << std::endl;
-        if (restored_value.value() != initial_value) {
+        auto restored_value = std::get<std::string>(get_restored_result.value().getValue());
+        std::cout << "   Read after restore: " << key << " = " << restored_value << std::endl;
+        if (restored_value != initial_value) {
             std::cerr << "Restored value mismatch!" << std::endl;
             return 1;
         }

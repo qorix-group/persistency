@@ -35,9 +35,9 @@ rust_test(
 rust_binary(
     name = "demo",
     srcs = ["examples/demo.rs"],
+    visibility = ["//visibility:public"],
     deps = [
         ":rust_kvs",
         "@score_crates//:tempfile",
     ],
-    visibility = ["//visibility:public"],
 )

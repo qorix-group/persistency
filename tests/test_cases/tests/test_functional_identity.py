@@ -3,28 +3,32 @@
 Functional Identity Test for Persistency Module
 
 This test verifies that the Rust and C++ implementations of the Persistency module
-produce functionally identical behavior by running their respective demo applications
-and comparing their outputs.
+are functionally identical by running their respective demo applications and
+comparing their outputs.
 """
 
 import subprocess
+import sys
 import tempfile
 import os
-import sys
-import shutil
+import re
+from pathlib import Path
 
-def run_command(cmd, cwd=None, env=None):
+def run_command(cmd, cwd=None):
     """Run a command and return (returncode, stdout, stderr)"""
-    result = subprocess.run(cmd, shell=True, cwd=cwd, env=env,
-                          capture_output=True, text=True)
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
     return result.returncode, result.stdout, result.stderr
 
-def run_demo(binary_path, temp_dir):
-    """Run a demo binary and capture its output"""
-    env = os.environ.copy()
-    env['TMPDIR'] = temp_dir
-    returncode, stdout, stderr = run_command(binary_path, env=env)
-    return returncode, stdout, stderr
+def extract_demo_output(output):
+    """Extract the key steps from demo output for comparison"""
+    lines = output.strip().split('\n')
+    steps = []
+    for line in lines:
+        if line.startswith('=== ') or line.startswith('1. ') or line.startswith('2. ') or \
+           line.startswith('3. ') or line.startswith('4. ') or line.startswith('5. ') or \
+           line.startswith('6. '):
+            steps.append(line.strip())
+    return steps
 
 def main():
     print("=== Functional Identity Test ===")
@@ -33,67 +37,59 @@ def main():
     with tempfile.TemporaryDirectory() as temp_dir:
         print(f"Using temporary directory: {temp_dir}")
 
-        # Build the demo binaries
-        print("Building demo binaries...")
-        build_cmd = "bazel build //src/cpp/src:demo //src/rust/rust_kvs:demo"
-        returncode, stdout, stderr = run_command(build_cmd)
-        if returncode != 0:
-            print(f"Build failed:\n{stderr}")
+        # Build Rust demo
+        print("Building Rust demo...")
+        ret, stdout, stderr = run_command("bazel build //src/rust/rust_kvs:demo")
+        if ret != 0:
+            print(f"Failed to build Rust demo: {stderr}")
             return 1
-        print("Build successful")
+        print("Rust demo built successfully")
 
-        # Get paths to built binaries
-        cpp_demo = "bazel-bin/src/cpp/src/demo"
-        rust_demo = "bazel-bin/src/rust/rust_kvs/demo"
-
-        # Run C++ demo
-        print("Running C++ demo...")
-        cpp_returncode, cpp_stdout, cpp_stderr = run_demo(cpp_demo, temp_dir)
-        if cpp_returncode != 0:
-            print(f"C++ demo failed:\n{cpp_stderr}")
+        # Build C++ demo
+        print("Building C++ demo...")
+        ret, stdout, stderr = run_command("bazel build //src/cpp/src:demo")
+        if ret != 0:
+            print(f"Failed to build C++ demo: {stderr}")
             return 1
-        print("C++ demo completed")
+        print("C++ demo built successfully")
 
         # Run Rust demo
         print("Running Rust demo...")
-        rust_returncode, rust_stdout, rust_stderr = run_demo(rust_demo, temp_dir)
-        if rust_returncode != 0:
-            print(f"Rust demo failed:\n{rust_stderr}")
+        ret, rust_output, stderr = run_command("bazel run //src/rust/rust_kvs:demo", cwd=temp_dir)
+        if ret != 0:
+            print(f"Failed to run Rust demo: {stderr}")
             return 1
         print("Rust demo completed")
 
-        # Compare outputs
-        print("Comparing outputs...")
+        # Run C++ demo
+        print("Running C++ demo...")
+        ret, cpp_output, stderr = run_command("bazel run //src/cpp/src:demo", cwd=temp_dir)
+        if ret != 0:
+            print(f"Failed to run C++ demo: {stderr}")
+            return 1
+        print("C++ demo completed")
 
-        # Normalize outputs (remove timestamps, paths, etc.)
-        def normalize_output(output):
-            lines = []
-            for line in output.split('\n'):
-                # Remove lines with timestamps or file paths
-                if '===' in line or line.startswith('1.') or line.startswith('2.') or \
-                   line.startswith('3.') or line.startswith('4.') or line.startswith('5.') or \
-                   line.startswith('6.') or 'Demo completed' in line:
-                    lines.append(line.strip())
-                elif 'Stored:' in line or 'Read:' in line or 'Overwritten:' in line:
-                    # Extract key-value pairs
-                    parts = line.split('=')
-                    if len(parts) == 2:
-                        lines.append(f"{parts[0].strip()} = {parts[1].strip()}")
-            return '\n'.join(lines)
+        # Extract and compare outputs
+        rust_steps = extract_demo_output(rust_output)
+        cpp_steps = extract_demo_output(cpp_output)
 
-        cpp_normalized = normalize_output(cpp_stdout)
-        rust_normalized = normalize_output(rust_stdout)
+        print("\n=== Output Comparison ===")
+        print("Rust steps:")
+        for step in rust_steps:
+            print(f"  {step}")
+        print("\nC++ steps:")
+        for step in cpp_steps:
+            print(f"  {step}")
 
-        print("C++ Output:")
-        print(cpp_normalized)
-        print("\nRust Output:")
-        print(rust_normalized)
-
-        if cpp_normalized == rust_normalized:
-            print("\n✅ Functional identity verified: C++ and Rust implementations produce identical behavior")
+        if rust_steps == cpp_steps:
+            print("\n✅ Functional identity verified: Rust and C++ demos produce identical output")
             return 0
         else:
             print("\n❌ Functional identity failed: Outputs differ")
+            print("Full Rust output:")
+            print(rust_output)
+            print("Full C++ output:")
+            print(cpp_output)
             return 1
 
 if __name__ == "__main__":

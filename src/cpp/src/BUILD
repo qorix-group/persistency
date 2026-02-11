@@ -59,6 +59,7 @@ cc_binary(
     srcs = [
         "demo.cpp",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":kvs_cpp",
         ":kvsvalue",

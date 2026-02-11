@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Bazel
+      uses: bazelbuild/setup-bazelisk@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl build-essential protobuf-compiler libclang-dev
+
+    - name: Set up Rust
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source ~/.cargo/env
+
+    - name: Build all targets
+      run: bazel build //...
+
+    - name: Run unit tests
+      run: bazel test //...
+
+    - name: Run functional identity test
+      run: bazel run //tests/test_cases/tests:test_functional_identity
+
+    - name: Build for x86_64
+      run: bazel build --platforms=@score_toolchains_gcc//platforms:x86_64-linux-gnu //...
+
+    - name: Build for aarch64
+      run: bazel build --platforms=@score_toolchains_gcc//platforms:aarch64-linux-gnu //...
+
+  qnx-integration-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Bazel
+      uses: bazelbuild/setup-bazelisk@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl build-essential protobuf-compiler libclang-dev qemu-system-arm
+
+    - name: Set up Rust
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source ~/.cargo/env
+
+    - name: Build QNX integration test
+      run: bazel build //tests/integration_test_scenarios:run_qemu
+
+    - name: Run QNX integration test
+      run: |
+        timeout 300 bazel run //tests/integration_test_scenarios:run_qemu || true
+        # Check if test completed successfully by looking for shutdown in logs
+        if [ -f /tmp/qemu_test.log ] && grep -q "All tests passed" /tmp/qemu_test.log; then
+          echo "QNX integration test passed"
+        else
+          echo "QNX integration test failed"
+          exit 1
+        fi
