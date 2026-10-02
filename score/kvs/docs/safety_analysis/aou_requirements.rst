@@ -12,32 +12,51 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-AoU Component Requirements KVS
-==============================
+KVS Component Assumptions of Use
+================================
 
-This page contains Assumption of Use requirement snippets that belong to the
-template repository.
+.. document:: KVS Component AoU
+   :id: doc__kvs_comp_aou
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :security: YES
+   :realizes: wp__requirements_comp_aou[version==1]
+   :tags: persistency
 
-Component AoU
--------------
+This document contains the assumptions of use (AoU) of the KVS component on its user and on its environment.
 
-.. code-block:: rst
+Assumptions on the User
+-----------------------
 
-   .. aou_req:: Next Title
-      :id: aou_req__mod_temp_component_name__next_title
-      :reqtype: Process
-      :security: YES
-      :safety: ASIL_B
-      :status: invalid
+.. aou_req:: Data Versioning by the Application
+   :id: aou_req__kvs__data_versioning
+   :reqtype: Process
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+   :tags: persistency
 
-      The Component User shall do xyz to use the component safely/securely
+   The application shall implement the versioning and the upgrade of its persisted data structures,
+   if it reads data written by a previous version of the application.
 
-   .. aou_req:: Another Title
-      :id: aou_req__mod_temp_component_name__another
-      :reqtype: Process
-      :security: YES
-      :safety: ASIL_B
-      :status: invalid
-      :tags: environment
+   Note: The component does not provide built-in versioning (see :need:`comp_req__kvs__pers_data_version`).
 
-      The Component shall only be used in a xyz environment to ensure its proper functioning.
+Assumptions on the Environment
+------------------------------
+
+.. aou_req:: File System Access Permissions
+   :id: aou_req__kvs__fs_permissions
+   :reqtype: Process
+   :security: YES
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+   :tags: persistency, environment
+
+   The system integrator shall configure the access permissions of the file system for the storage
+   location of a KVS instance so that only the authorized application can read and write its storage files.
+
+   Note: The component relies on the file system for access and permission management
+   (see :need:`comp_req__kvs__permission_control`).
