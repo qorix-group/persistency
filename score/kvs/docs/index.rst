@@ -115,7 +115,7 @@ We use an iterative development process and apply results from the next steps
 back to the component request.
 
 To ensure the freedom from interference the key-value storage shall not
-be used within different processes, see :need:`aou_req__kvs__single_process`.
+be used within different processes, see :need:`comp_req__kvs__single_process_access`.
 
 License Impact
 ==============

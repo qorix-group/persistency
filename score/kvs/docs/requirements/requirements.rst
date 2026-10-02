@@ -227,6 +227,18 @@ Functional Requirements
    The component shall implement thread-safe mechanisms to enable concurrent
    access to data without data races.
 
+.. comp_req:: Single Process Access
+   :id: comp_req__kvs__single_process_access
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__persistency__multiple_app[version==1]
+   :status: valid
+   :version: 1
+   :satisfied_by: comp__persistency_kvs[version==1]
+
+   The component shall prevent a single KVS instance from being opened concurrently by more than one OS process.
+
 .. comp_req:: Multi-Instance
    :id: comp_req__kvs__multi_instance
    :reqtype: Functional

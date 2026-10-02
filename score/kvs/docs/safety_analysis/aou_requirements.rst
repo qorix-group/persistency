@@ -29,20 +29,6 @@ This document contains the assumptions of use (AoU) of the KVS component on its 
 Assumptions on the User
 -----------------------
 
-.. aou_req:: Single Process Access
-   :id: aou_req__kvs__single_process
-   :reqtype: Process
-   :security: NO
-   :safety: ASIL_B
-   :status: valid
-   :version: 1
-   :tags: persistency
-
-   The user shall access the storage files of a KVS instance from one process only.
-
-   Note: The component provides thread-safe access within one process (see :need:`comp_req__kvs__concurrency`),
-   but no synchronization between processes.
-
 .. aou_req:: Data Versioning by the Application
    :id: aou_req__kvs__data_versioning
    :reqtype: Process
