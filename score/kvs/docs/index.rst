@@ -26,14 +26,7 @@ KVS (Key Value Store)
    :realizes: wp__cmpt_request[version==1]
    :tags: Persistency KVS
 
-.. comp:: persistency::kvs
-   :id: comp__persistency_kvs
-   :security: YES
-   :safety: ASIL_B
-   :status: valid
-   :version: 1
-   :implements: logic_arc_int__persistency__interface[version==1]
-   :belongs_to: feat__persistency[version==1]
+
 
 Abstract
 ========
@@ -119,12 +112,10 @@ analyze the impact of the feature.
 :need:`doc__persistency_fmea`
 
 We use an iterative development process and apply results from the next steps
-back to the component request. The Rust implementation uses the OSS library Tiny JSON,
-which is classified in :need:`doc__json_comp_class`.
+back to the component request.
 
 To ensure the freedom from interference the key-value storage shall not
 be used within different processes, see :need:`aou_req__kvs__single_process`.
-
 
 License Impact
 ==============
