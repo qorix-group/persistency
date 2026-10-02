@@ -15,14 +15,14 @@
 
 .. document:: KVS Requirements Inspection Checklist
    :id: doc__kvs_req_inspection
-   :status: valid
+   :status: draft
    :version: 1
    :safety: ASIL_B
    :security: YES
    :realizes: wp__requirements_inspect[version==1]
 
-Requirement Inspection Checklist
-================================
+KVS Requirement Inspection Checklist
+====================================
 
 Purpose
 -------
@@ -70,6 +70,11 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
         - In :need:`comp_req__kvs__default_value_types` it is unclear what is the meaning of "only permitted"
         - In :need:`comp_req__kvs__pers_data_schema` it is not clear what downgrade means (it is also not required from the feature req). And it seems that really the application/user is responsible for thee versioning?
         - In :need:`comp_req__kvs__field_mode` - access to what?
+
+        Rework: ``default_value_types`` now refers to :need:`comp_req__kvs__value_data_types`;
+        ``pers_data_schema`` no longer mentions downgrade, the application responsibility is
+        stated in :need:`aou_req__kvs__data_versioning`. Open: snapshot term (snapshot redesign
+        in progress), ``field_mode`` (feature requirement ``prod_mode`` is also unspecific).
       - https://github.com/eclipse-score/persistency/issues/297
     * - REQ_02_02
       - Is the requirement description *unambiguous* ?
@@ -103,6 +108,10 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
         - :need:`comp_req__kvs__default_value_cfg` does not implement a part of its linked :need:`feat_req__persistency__reset_to_default` and :need:`feat_req__persistency__default_value_get`
         - :need:`comp_req__kvs__default_val_chksum` should only link to :need:`feat_req__persistency__default_value_file`
         - stopped the inspection at this point - too many findings. Request rework of complete requirement set.
+
+        Rework: parent links of ``default_value_query``, ``default_value_cfg``, ``default_val_chksum``
+        and ``default_value_types`` reduced to the parents they implement. Inspection to be continued
+        from this item on.
       - https://github.com/eclipse-score/persistency/issues/297
     * - REQ_04_01
       - Is the requirement *internally and externally consistent*?
@@ -110,6 +119,9 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - NO
       - - Requirement :need:`comp_req__kvs__value_serialize` speaks about serialization/deserialization of JSON, it is expected that this is a requirement for a "JSON" component and not for KVS
         - All requirement IDs are using "persistency" as a component name, it should be "persistency_kvs" according to :need:`comp__persistency_kvs`
+
+        Open: allocation of JSON requirements depends on the decision on the JSON component;
+        renaming of the requirement IDs needs a decision (test links refer to the current IDs).
       - https://github.com/eclipse-score/persistency/issues/297
     * - REQ_05_01
       - Do the software requirements consider *timing constraints*?
@@ -122,6 +134,11 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - The SW platform's external interfaces (to the user) are defined in the Feature Architecture, so the Feature and Component Requirements should determine the input data use and setting of output data for these interfaces. Are all output values defined?
       - NO
       - It is not completely defined how the operations in logic_arc_int__persistency__interface are used, for example "open" and "flush".
+
+        Rework: interface requirements added for the operations provided by the Rust and the C++ implementation
+        (open, get/set value, key exists, get all keys, remove key, value is default, flush).
+        Open: ``flush_on_exit``, ``remove_all_keys``, ``discard_pending_changes`` and ``get_storage_file_size``
+        are not provided by both implementations.
       - https://github.com/eclipse-score/persistency/issues/297
     * - REQ_07_01
       - Is the *safety* attribute set correctly?
@@ -150,6 +167,10 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - In very rare cases a requirement may not be verifiable by test cases, for example a specific non-functional requirement. In this case a requirement analysis verifies the requirement by design/code review. If such a requirement is in scope of this inspection, please check this here and link to the respective review record. A test expert is invited to the inspection to confirm their opinion that the requirement is not testable.
       - NO
       - Requirements mentioned in REQ_08_01 were not confirmed by design/code review to date.
+
+        Rework: the responsibilities shifted to the user are now AoUs
+        (:need:`aou_req__kvs__data_versioning`, :need:`aou_req__kvs__fs_permissions`).
+        The design/code review for ``pers_data_version`` and ``permission_control`` is still to be done.
       - https://github.com/eclipse-score/persistency/issues/297
     * - REQ_09_01
       - Do the requirements that define a safety mechanism specify the error reaction leading to a safe state?
@@ -158,12 +179,21 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - - :need:`comp_req__kvs__default_val_chksum` - defines safety mechanism, no error reaction defined
         - :need:`comp_req__kvs__pers_data_csum` - defines part of safety mechanism, error reaction not needed
         - :need:`comp_req__kvs__pers_data_csum_vrfy` defines part of safety mechanism, no error reaction defined
+
+        Rework: error reaction (report error, data not used) added to ``default_val_chksum`` and
+        ``pers_data_csum_vrfy``, as implemented in Rust and C++ (``ValidationFailed``).
       - https://github.com/eclipse-score/persistency/issues/297
+    * - REQ_10_01
+      - Is the requirement description *complete* ?
+      - For every requirement in the inspection, follow to its parent (feature) requirement(s) and then check if this/these are fulfilled completely by its/their linked children (component requirements, including those which are not in scope of the inspection).
+      -
+      -
+      -
 
 The following requirements in "valid" state and with "inspected" tag set are in the scope of this inspection:
 
 .. needtable::
-   :filter: docname is not None and "component_name" in docname and "requirements" in docname and status == "valid"
+   :filter: docname is not None and "components/kvs" in docname and "requirements" in docname and status == "valid"
    :style: table
    :types: comp_req
    :columns: id;status;tags
@@ -174,7 +204,7 @@ The following requirements in "valid" state and with "inspected" tag set are in 
 And also the following AoUs in "valid" state and with "inspected" tag set (for these please answer the questions above as if the AoUs are requirements, except question REQ_03_01):
 
 .. needtable::
-   :filter: docname is not None and "component_name" in docname and "requirements" in docname and status == "valid"
+   :filter: docname is not None and "components/kvs" in docname and "aou_requirements" in docname and status == "valid"
    :style: table
    :types: aou_req
    :columns: id;status;tags

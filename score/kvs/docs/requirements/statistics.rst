@@ -25,8 +25,8 @@ Overview
    :colors: red,yellow, green
 
    type == 'comp_req' and status == 'invalid'
-   type == 'comp_req' and testlink == '' and (status == 'valid' or status == 'invalid')
-   type == 'comp_req' and testlink != '' and (status == 'valid' or status == 'invalid')
+   type == 'comp_req' and testlink == '' and status == 'valid'
+   type == 'comp_req' and testlink != '' and status == 'valid'
 
 In Detail
 ---------
@@ -38,7 +38,7 @@ In Detail
 
       .. needpie:: Requirements marked as Valid
          :labels: not valid, valid
-         :colors: red, orange, green
+         :colors: red, green
 
          type == 'comp_req' and status == 'invalid'
          type == 'comp_req' and status == 'valid'

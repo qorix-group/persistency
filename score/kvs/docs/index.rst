@@ -38,7 +38,7 @@ KVS (Key Value Store)
 Abstract
 ========
 
-This feature request describes the key-value storage (KVS) that is needed by
+The KVS (key-value storage) component implements the Persistency feature. It is needed by
 applications to store either temporary or permanent data in an easy way that
 conforms to most programming languages that provide a hash, hashmap, dictionary
 or similar data structure. Access to the KVS is possible from any support
@@ -84,8 +84,9 @@ Rationale
 Specification
 =============
 
-[Describe the requirements, architecture of any new component.] or
-[Describe the change to requirements, architecture, implementation, documentation of any change request.]
+The component is specified by its requirements and assumptions of use, its architecture and its
+detailed design, see `Component Detail Information`_. The usage of the component is described in
+:ref:`How to Teach This <kvs_how_to_teach>`.
 
 
 Backwards Compatibility
@@ -118,13 +119,11 @@ analyze the impact of the feature.
 :need:`doc__persistency_fmea`
 
 We use an iterative development process and apply results from the next steps
-back to the feature request. For TinyJSON we will perform a software component
-classification.
+back to the component request. The Rust implementation uses the OSS library Tiny JSON,
+which is classified in :need:`doc__json_comp_class`.
 
-:need:`doc__json_comp_class`
-
-To ensure the freedom of interference the feature key-value storage should not
-be used within different processes.
+To ensure the freedom from interference the key-value storage shall not
+be used within different processes, see :need:`aou_req__kvs__single_process`.
 
 
 License Impact
@@ -135,47 +134,31 @@ License Impact
       used libraries are need to be checked.
 
 
-Rejected Ideas
-==============
+.. _kvs_how_to_teach:
 
-[Why certain ideas that were brought while discussing this CR were not ultimately pursued.]
+How to Teach This
+=================
 
-.. note::
-   Throughout the discussion of a CR, various ideas will be proposed which are not accepted.
-   Those rejected ideas should be recorded along with the reasoning as to why they were rejected.
-   This both helps record the thought process behind the final version of the CR as well as preventing people from bringing up the same rejected idea again in subsequent discussions.
-   In a way this section can be thought of as a breakout section of the Rationale section that is focused specifically on why certain ideas were not ultimately pursued.
-
-
-
-Open Issues
-===========
-
-[Any points that are still being decided/discussed.]
-
-   .. note::
-       While a CR is in draft, ideas can come up which warrant further discussion.
-       Those ideas should be recorded so people know that they are being thought about but do not have a concrete resolution.
-       This helps make sure all issues required for the CR to be ready for consideration are complete and reduces people duplicating prior discussion.
-
-
+The usage of the KVS, its data types and examples are described in :doc:`kvs`.
 
 Footnotes
 =========
 
-[A collection of footnotes cited in the CR, and a place to list non-inline hyperlink targets.]
+None.
+
+Component Detail Information
+============================
 
 .. toctree::
+   :maxdepth: 1
 
-   architecture/chklst_arc_inspection.rst
-   architecture/component_architecture.rst
+   requirements/index.rst
+   safety_analysis/aou_requirements.rst
    architecture/index.rst
+   architecture/component_architecture.rst
+   architecture/chklst_arc_inspection.rst
    detailed_design/index.rst
    detailed_design/chklst_impl_inspection.rst
-   kvs.rst
-   requirements/index.rst
-   requirements/chklst_req_inspection.rst
-   requirements/statistics.rst
-   safety_analysis/aou_requirements.rst
    safety_analysis/fmea.rst
    safety_analysis/dfa.rst
+   kvs.rst
