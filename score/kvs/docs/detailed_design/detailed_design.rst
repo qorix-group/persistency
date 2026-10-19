@@ -20,7 +20,7 @@ KVS Detailed Design Description
    :status: valid
    :version: 1
    :safety: ASIL_B
-   :security: NO
+   :security: YES
    :realizes: wp__sw_implementation[version==1]
    :tags: persistency
 
@@ -28,25 +28,38 @@ Description
 -----------
 
 The KVS component (:need:`comp__persistency_kvs`) is implemented in Rust and in C++ with the same API concept.
-The architecture of the component is described in :need:`doc__kvs_component_architecture`.
+The architecture of the component is described in :need:`doc__kvs_component_architecture`. The public
+interfaces of the component and their operations are defined there:
+
+- C++: :need:`real_arc_int__kvs__cpp_builder` and :need:`real_arc_int__kvs__cpp_kvs`
+- Rust: :need:`real_arc_int__kvs__rust_builder`, :need:`real_arc_int__kvs__rust_kvs_api`,
+  :need:`real_arc_int__kvs__rust_backend` and :need:`real_arc_int__kvs__rust_json_builder`
+
+This document describes the decomposition of the component into units and their interactions.
 
 Design decisions:
 
-- An instance is created with a builder (``KvsBuilder``), which defines the instance ID and whether persisted data
-  and default values are required, optional or ignored.
+- An instance is created with a builder (``KvsBuilder``), which defines the instance ID, the snapshot to load and
+  whether persisted data and default values are required, optional or ignored.
 - All values of an instance are held in memory. Persisted data is loaded on open and written on explicit flush.
 - Each instance is protected by one mutex for thread-safe access (:need:`comp_req__kvs__concurrency`).
 - The data is stored as JSON data file with an Adler-32 hash file, snapshots are stored as additional file pairs.
+  On flush the data and hash file are synchronized to the storage (C++: ``fdatasync``, Rust: ``sync_data``).
 - Rust: the storage access is encapsulated in the ``KvsBackend`` trait. The default backend ``JsonBackend``
-  uses the crates ``tinyjson`` and ``adler32`` and the Rust standard library file API.
+  uses the crates ``tinyjson`` and ``adler32`` and the Rust standard library file API. Logging uses ``score_log``
+  with the context ``PERS``.
 - C++: the file system, JSON parser and writer and logger of the S-CORE baselibs are injected into ``Kvs``
   as interfaces, which allows testing with mocks.
 
 Design constraints:
 
-- Rust: at most ``KVS_MAX_INSTANCES`` (10) instances exist per process; ``KvsBuilder`` returns the existing
-  instance when an instance ID is opened again.
+- Rust: at most ``KVS_MAX_INSTANCES`` (10) instances exist per process. ``KvsBuilder`` returns the existing
+  instance when an instance ID is opened again with the same options, otherwise ``InstanceParametersMismatch``.
+- Rust: the maximum number of snapshots is set in ``JsonBackendBuilder`` (default 3).
 - C++: the API functions do not wait for the mutex and return ``MutexLockFailed`` if the instance is locked.
+- C++: keys must not be empty and are limited to ``KVS_MAX_KEY_LENGTH_BYTES`` (32 bytes).
+- C++: the maximum number of snapshots is limited to ``KVS_MAX_SNAPSHOTS_UPPER_BOUND`` (3), default
+  ``KVS_DEFAULT_MAX_SNAPSHOTS`` (3). An optional storage limit (``max_storage_bytes``) is checked on flush before the files are written.
 
 Rationale Behind Decomposition into Units
 *****************************************
@@ -59,13 +72,18 @@ KVS logic independent of the file system.
 Static Diagrams for Unit Interactions
 -------------------------------------
 
-Rust implementation:
+The static diagrams show the units of the component, their relations and the used libraries. The operations
+of the units are documented in the source code and, for the public interfaces, in the component architecture.
 
-.. uml:: class_diagram.puml
+``dd_sta__kvs__rust_units``: units of the Rust implementation. ``Kvs`` implements ``KvsApi`` and accesses the
+storage via ``KvsBackend``, ``KvsBuilder`` creates ``Kvs`` with ``JsonBackend`` as default backend.
 
-C++ implementation:
+.. uml:: dd_sta__kvs__rust_units.puml
 
-.. uml:: kvs_cpp_static_view.puml
+``dd_sta__kvs__cpp_units``: units of the C++ implementation. ``KvsBuilder`` creates ``Kvs``, which uses the
+injected baselibs interfaces and ``kvs_helper`` for the hash calculation and the conversion of ``KvsValue``.
+
+.. uml:: dd_sta__kvs__cpp_units.puml
 
 Dynamic Diagrams for Unit Interactions
 --------------------------------------
@@ -80,14 +98,14 @@ Units within the Component
 Rust implementation (``score/kvs/rust_kvs``):
 
 - ``kvs_api.rs``: API definition (``KvsApi`` trait, ``InstanceId``, ``SnapshotId``, ``KvsDefaults``, ``KvsLoad``)
-- ``kvs.rs``: implementation of the API (``Kvs``)
+- ``kvs.rs``: implementation of the API (``Kvs``, ``KvsParameters``)
 - ``kvs_builder.rs``: creation of instances and instance pool (``KvsBuilder``)
-- ``kvs_value.rs``: value representation (``KvsValue``)
-- ``kvs_serialize.rs``: conversion of custom types to and from ``KvsValue``
+- ``kvs_value.rs``: value representation (``KvsValue``, ``KvsMap``)
+- ``kvs_serialize.rs``: conversion of custom types to and from ``KvsValue`` (``KvsSerialize``, ``KvsDeserialize``)
 - ``kvs_backend.rs``: storage backend interface (``KvsBackend``)
-- ``json_backend.rs``: JSON storage backend with hash and snapshot files (``JsonBackend``)
+- ``json_backend.rs``: JSON storage backend with hash and snapshot files (``JsonBackend``, ``JsonBackendBuilder``)
 - ``error_code.rs``: error codes (``ErrorCode``)
-- ``log.rs``: logging with context ``PERS``
+- ``log.rs``: logging macros with context ``PERS``
 - ``kvs_mock.rs``: mock of the API for tests of users (``MockKvs``)
 
 C++ implementation (``score/kvs``):

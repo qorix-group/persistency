@@ -1,0 +1,47 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml dd_sta__kvs__cpp_units
+title KVS C++ units and their relations
+hide empty members
+
+package "score::mw::per::kvs" {
+    class KvsBuilder <<kvsbuilder.hpp>>
+    class Kvs <<kvs.hpp>>
+    class KvsValue <<kvsvalue.hpp>>
+    enum ErrorCode <<error.hpp>>
+    class KvsErrorDomain <<error.hpp>>
+    class kvs_helper <<internal/kvs_helper.hpp>>
+
+    KvsBuilder ..> Kvs : creates
+    Kvs o-- KvsValue
+    Kvs ..> kvs_helper : uses
+    kvs_helper ..> KvsValue : converts
+    Kvs ..> ErrorCode : reports
+    KvsErrorDomain ..> ErrorCode
+}
+
+package "score_baselibs" {
+    interface "filesystem::Filesystem" as Filesystem
+    interface "json::IJsonParser" as IJsonParser
+    interface "json::IJsonWriter" as IJsonWriter
+    interface "mw::log::Logger" as Logger
+}
+
+Kvs --> Filesystem
+Kvs --> IJsonParser
+Kvs --> IJsonWriter
+Kvs --> Logger
+kvs_helper ..> IJsonParser : json::Any
+
+@enduml

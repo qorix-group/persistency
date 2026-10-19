@@ -12,123 +12,18 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. _component_architecture_PersistencyKvs:
+.. _component_architecture_kvs:
 
-Architecture
-============
+KVS Architecture
+================
 
-.. document:: KVS Module Architecture
-   :id: doc__kvs_architecture
-   :status: valid
-   :version: 1
-   :safety: ASIL_B
-   :security: NO
-   :realizes: wp__component_arch[version==1]
+The KVS component has no sub-components. The component architecture describes the component, its static and
+dynamic view and its public interfaces for C++ and Rust, which realize the logical interface of the feature.
+The decomposition of the component into units is described in the detailed design
+(:ref:`component_detailed_design_kvs`). The architecture inspection checklist is mandatory.
 
-Overview
---------
-Brief summary
+.. toctree::
+   :maxdepth: 1
 
-Requirements Linked to Component Architecture
----------------------------------------------
-
-.. code-block:: none
-
-   .. needtable:: Overview of Component Requirements
-      :style: table
-      :columns: title;id
-      :filter: search("comp_arch_sta__archdes$", "fulfils_back")
-      :colwidths: 70,30
-
-Description
------------
-
-<General Description>
-
-<Design Decisions - For the documentation of the decision the :need:`gd_temp__change_decision_record` can be used.>
-
-<Design Constraints>
-
-Rationale Behind Architecture Decomposition
-*******************************************
-mandatory: a motivation for the decomposition or reason for not further splitting it into sub components.
-
-.. note:: Common decisions across components / cross cutting concepts is at the higher level.
-
-Static Architecture
--------------------
-
-The components are designed to cover the expectations from the feature architecture
-(i.e. if already exists a definition it should be taken over and enriched).
-
-A component can optional also consist of subcomponents to further structure the architecture. The component and its static views can also optionally use interfaces provided by other components.
-
-The live component architecture template is maintained in the
-`module template documentation <https://eclipse-score.github.io/module_template/main/components/component_example/architecture/component_architecture.html>`_.
-
-.. comp_arc_sta:: Component Name (Static View)
-   :id: comp_arc_sta__kvs__static_view
-   :security: YES
-   :safety: ASIL_B
-   :status: invalid
-   :version: 1
-   :belongs_to: comp__persistency_kvs[version==1]
-   :implements:
-   :fulfils: comp_req__kvs__key_naming[version==1]
-
-   .. needarch::
-      :scale: 50
-      :align: center
-
-      {{ draw_component(need(), needs) }}
-
-Dynamic Architecture
---------------------
-
-.. comp_arc_dyn:: Dynamic View
-   :id: comp_arc_dyn__kvs__dynamic_view
-   :security: YES
-   :safety: ASIL_B
-   :status: invalid
-   :version: 1
-   :belongs_to: comp__persistency_kvs[version==1]
-   :fulfils: comp_req__kvs__key_naming[version==1]
-
-   put here a sequence diagram
-
-
-Interfaces
-----------
-
-.. code-block:: rst
-
-   .. real_arc_int:: <Title>
-      :id: real_arc_int__<component>__<Title>
-      :security: <YES|NO>
-      :safety: <QM|ASIL_B|ASIL_B>
-      :fulfils: <link to component requirement id>
-      :language: cpp
-
-Internal Components
--------------------
-
-.. comp_arc_sta:: Component Name 2
-   :id: comp_arc_sta__kvs__2
-   :status: invalid
-   :version: 1
-   :safety: ASIL_B
-   :security: YES
-   :implements:
-   :belongs_to: comp__persistency_kvs[version==1]
-   :fulfils: comp_req__kvs__key_naming[version==1]
-
-   no architecture but detailed design
-
-.. note::
-   Architecture can be split into multiple files. At component level the public interfaces to be used by the user and tester to be shown.
-
-.. attention::
-    The above directives must be updated according to your component architecture.
-
-    - Replace the example content by the real content (according to :need:`gd_guidl__arch_design`)
-    - Set the status to valid and start the review/merge process
+   component_architecture
+   chklst_arc_inspection

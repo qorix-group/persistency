@@ -155,8 +155,6 @@ Footnotes
 
 .. toctree::
 
-   architecture/chklst_arc_inspection.rst
-   architecture/component_architecture.rst
    architecture/index.rst
    detailed_design/index.rst
    kvs.rst

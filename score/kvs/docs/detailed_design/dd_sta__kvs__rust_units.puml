@@ -1,0 +1,56 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml dd_sta__kvs__rust_units
+title KVS Rust units and their relations
+hide empty members
+
+package "rust_kvs" {
+    class KvsBuilder <<kvs_builder.rs>>
+    interface KvsApi <<kvs_api.rs>>
+    class Kvs <<kvs.rs>>
+    class MockKvs <<kvs_mock.rs>>
+    class KvsValue <<kvs_value.rs>>
+    interface "KvsSerialize / KvsDeserialize" as KvsSerialize <<kvs_serialize.rs>>
+    interface KvsBackend <<kvs_backend.rs>>
+    class JsonBackendBuilder <<json_backend.rs>>
+    class JsonBackend <<json_backend.rs>>
+    enum ErrorCode <<error_code.rs>>
+    class log <<log.rs>>
+
+    KvsBuilder ..> Kvs : creates
+    KvsBuilder ..> JsonBackendBuilder : default backend
+    KvsApi <|.. Kvs
+    KvsApi <|.. MockKvs
+    Kvs --> KvsBackend
+    Kvs o-- KvsValue
+    KvsSerialize ..> KvsValue : converts
+    KvsBackend <|.. JsonBackend
+    JsonBackendBuilder ..> JsonBackend : creates
+    Kvs ..> ErrorCode : reports
+    JsonBackend ..> ErrorCode : reports
+    Kvs ..> log
+    JsonBackend ..> log
+}
+
+package "external crates" {
+    class tinyjson <<crate>>
+    class adler32 <<crate>>
+    class score_log <<crate>>
+}
+
+JsonBackend --> tinyjson
+JsonBackend --> adler32
+log --> score_log
+
+@enduml
