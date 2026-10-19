@@ -291,7 +291,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": null,
-    "FullyVerifies": "comp_req__kvs__persist_data_com"
+    "FullyVerifies": "comp_req__kvs__explicit_flush"
   },
   {
     "name": "TestSnapshotCountFirstFlush__test_ok[0-rust]",
@@ -304,7 +304,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -318,7 +318,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -332,7 +332,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -346,7 +346,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -360,7 +360,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -374,7 +374,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -430,8 +430,8 @@
     "TestType": "control-flow-analysis",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation, comp_req__kvs__snapshot_rotate",
-    "FullyVerifies": "comp_req__kvs__snapshot_restore"
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api, comp_req__kvs__snapshot_overwrite",
+    "FullyVerifies": "comp_req__kvs__snapshot_restore_api"
   },
   {
     "name": "TestSnapshotRestoreCurrent__test_error[rust]",
@@ -444,7 +444,7 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -458,7 +458,7 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation, comp_req__kvs__snapshot_restore",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api, comp_req__kvs__snapshot_restore_api",
     "FullyVerifies": null
   },
   {
@@ -472,7 +472,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -486,13 +486,13 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
-    "name": "TestSupportedDatatypesKeys__test_ok[rust]",
+    "name": "TestSupportedDatatypesKeys__test_valid_keys_accepted[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "44",
+    "line": "77",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -500,13 +500,27 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__key_naming, comp_req__kvs__key_encoding, comp_req__kvs__key_length",
+    "FullyVerifies": null
+  },
+  {
+    "name": "TestSupportedDatatypesKeys__test_invalid_keys_rejected[rust]",
+    "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
+    "line": "87",
+    "result": "skipped",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "Rust KVS does not validate keys yet",
+    "PartiallyVerifies": "comp_req__kvs__key_naming, comp_req__kvs__key_encoding, comp_req__kvs__key_length",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_I32__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -514,13 +528,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_U32__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -528,13 +542,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_I64__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -542,13 +556,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_U64__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -556,13 +570,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_F64__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -570,13 +584,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Bool__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -584,13 +598,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_String__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -598,13 +612,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Array__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -612,13 +626,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Object__test_ok[rust]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -626,7 +640,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
@@ -920,7 +934,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -934,7 +948,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -948,7 +962,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -962,7 +976,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -976,7 +990,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -990,7 +1004,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -1046,8 +1060,8 @@
     "TestType": "control-flow-analysis",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation, comp_req__kvs__snapshot_rotate",
-    "FullyVerifies": "comp_req__kvs__snapshot_restore"
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api, comp_req__kvs__snapshot_overwrite",
+    "FullyVerifies": "comp_req__kvs__snapshot_restore_api"
   },
   {
     "name": "TestSnapshotRestoreCurrent__test_error[cpp]",
@@ -1060,7 +1074,7 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -1074,7 +1088,7 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation, comp_req__kvs__snapshot_restore",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api, comp_req__kvs__snapshot_restore_api",
     "FullyVerifies": null
   },
   {
@@ -1088,7 +1102,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
@@ -1102,13 +1116,13 @@
     "TestType": "fault-injection",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__snapshot_creation",
+    "PartiallyVerifies": "comp_req__kvs__snapshot_create_api",
     "FullyVerifies": null
   },
   {
-    "name": "TestSupportedDatatypesKeys__test_ok[cpp]",
+    "name": "TestSupportedDatatypesKeys__test_valid_keys_accepted[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "44",
+    "line": "77",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1116,13 +1130,27 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__key_naming, comp_req__kvs__key_encoding, comp_req__kvs__key_length",
+    "FullyVerifies": null
+  },
+  {
+    "name": "TestSupportedDatatypesKeys__test_invalid_keys_rejected[cpp]",
+    "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
+    "line": "87",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__kvs__key_naming, comp_req__kvs__key_encoding, comp_req__kvs__key_length",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_I32__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1130,13 +1158,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_U32__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1144,13 +1172,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_I64__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1158,13 +1186,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_U64__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1172,13 +1200,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_F64__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1186,13 +1214,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Bool__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1200,13 +1228,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_String__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1214,13 +1242,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Array__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1228,13 +1256,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   },
   {
     "name": "TestSupportedDatatypesValues_Object__test_ok[cpp]",
     "file": "score/kvs/tests/test_cases/tests/test_cit_supported_datatypes.py",
-    "line": "85",
+    "line": "136",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1242,7 +1270,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__kvs__key_encoding, comp_req__kvs__value_data_types",
+    "PartiallyVerifies": "comp_req__kvs__value_data_types",
     "FullyVerifies": null
   }
 ]

@@ -484,7 +484,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-330799a6">
+  <div class="need_container docutils container" id="SNCB-24233c31">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__kvs_req_inspection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -492,7 +492,7 @@
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">invalid</span></span></span></div>
 <div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
 <div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
 </div>
@@ -584,7 +584,6 @@ See also <a class="external_link reference external" href="https://eclipse-score
 <li><p>Several requirements use the term “snapshot” which is not explained.</p></li>
 <li><p>In <a class="reference internal" href="index.html#comp_req__kvs__default_value_types" title="comp_req__kvs__default_value_types"><em class="xref need">Default Value Datatypes (comp_req__kvs__default_value_types)</em></a> it is unclear what is the meaning of “only permitted”</p></li>
 <li><p>In <a class="reference internal" href="index.html#comp_req__kvs__pers_data_schema" title="comp_req__kvs__pers_data_schema"><em class="xref need">Persistent Data Schema (comp_req__kvs__pers_data_schema)</em></a> it is not clear what downgrade means (it is also not required from the feature req). And it seems that really the application/user is responsible for thee versioning?</p></li>
-<li><p>In <a class="reference internal" href="index.html#comp_req__kvs__field_mode" title="comp_req__kvs__field_mode"><em class="xref need">Field Mode (comp_req__kvs__field_mode)</em></a> - access to what?</p></li>
 </ul>
 </td>
 <td><p><a class="github reference external" href="https://github.com/eclipse-score/persistency/issues/297">eclipse-score/persistency#297</a></p></td>
@@ -592,9 +591,9 @@ See also <a class="external_link reference external" href="https://eclipse-score
 <tr class="row-even"><td><p>REQ_02_02</p></td>
 <td><p>Is the requirement description <em>unambiguous</em> ?</p></td>
 <td><p>Especially search for “weak words” like “about”, “etc.”, “relevant” and others (see the internet documentation on this). This check shall be supported by tooling.</p></td>
-<td><p>NO</p></td>
-<td><p><a class="reference internal" href="index.html#comp_req__kvs__field_mode" title="comp_req__kvs__field_mode"><em class="xref need">Field Mode (comp_req__kvs__field_mode)</em></a> uses hard to verify term “as much as possible”</p></td>
-<td><p><a class="github reference external" href="https://github.com/eclipse-score/persistency/issues/297">eclipse-score/persistency#297</a></p></td>
+<td><p>YES</p></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p>REQ_02_03</p></td>
 <td><p>Is the requirement description <em>atomic</em> ?</p></td>
@@ -676,7 +675,6 @@ See also <a class="external_link reference external" href="https://eclipse-score
 <td><p>Reqs either already have a testlink or seem to easily testable. With the following exceptions (which need to be verified according to REQ_08_02):</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="index.html#comp_req__kvs__pers_data_version" title="comp_req__kvs__pers_data_version"><em class="xref need">Persistent Data Versioning (comp_req__kvs__pers_data_version)</em></a> - absence of a feature cannot be tested</p></li>
-<li><p><a class="reference internal" href="index.html#comp_req__kvs__field_mode" title="comp_req__kvs__field_mode"><em class="xref need">Field Mode (comp_req__kvs__field_mode)</em></a> - as much as possible?</p></li>
 <li><p><a class="reference internal" href="index.html#comp_req__kvs__permission_control" title="comp_req__kvs__permission_control"><em class="xref need">Permission Control (comp_req__kvs__permission_control)</em></a> - non-implementation of a feature cannot be tested</p></li>
 </ul>
 </td>
