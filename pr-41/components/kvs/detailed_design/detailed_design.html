@@ -407,21 +407,19 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">KVS (Key Value Store)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../architecture/chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/component_architecture.html">Component Architecture KVS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">KVS Architecture</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">KVS Detailed Design</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">KVS Detailed Design Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chklst_impl_inspection.html">KVS Implementation Inspection Checklist</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../kvs.html">Key-Value-Storage (rust_kvs) Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kvs.html">KVS Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/statistics.html">Component Requirements Statistics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements KVS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">Safety Analysis: FMEA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">Dependent Failure Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">KVS FMEA (Failure Modes and Effects Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">KVS DFA (Dependent Failure Analysis)</a></li>
 </ul>
 </details></li>
 </ul>
@@ -492,7 +490,7 @@
                   
   <section id="kvs-detailed-design-description">
 <h1>KVS Detailed Design Description<a class="headerlink" href="#kvs-detailed-design-description" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-ff8e8017">
+<div class="need_container docutils container" id="SNCB-8b859f53">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__kvs_detailed_design">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -501,7 +499,7 @@
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
 <div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
 <div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
 </div>
 </td>
@@ -539,24 +537,37 @@
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
 <p>The KVS component (<a class="reference internal" href="../architecture/component_architecture.html#comp__persistency_kvs" title="comp__persistency_kvs"><em class="xref need">persistency::kvs (comp__persistency_kvs)</em></a>) is implemented in Rust and in C++ with the same API concept.
-The architecture of the component is described in <a class="reference internal" href="../architecture/component_architecture.html#doc__kvs_component_architecture" title="doc__kvs_component_architecture"><em class="xref need">KVS Component Architecture (doc__kvs_component_architecture)</em></a>.</p>
+The architecture of the component is described in <a class="reference internal" href="../architecture/component_architecture.html#doc__kvs_component_architecture" title="doc__kvs_component_architecture"><em class="xref need">KVS Component Architecture (doc__kvs_component_architecture)</em></a>. The public
+interfaces of the component and their operations are defined there:</p>
+<ul class="simple">
+<li><p>C++: <a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__cpp_builder" title="real_arc_int__kvs__cpp_builder"><em class="xref need">score::mw::per::kvs::KvsBui... (real_arc_int__kvs__cpp_builder)</em></a> and <a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__cpp_kvs" title="real_arc_int__kvs__cpp_kvs"><em class="xref need">score::mw::per::kvs::Kvs (real_arc_int__kvs__cpp_kvs)</em></a></p></li>
+<li><p>Rust: <a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__rust_builder" title="real_arc_int__kvs__rust_builder"><em class="xref need">rust_kvs::kvs_builder::KvsB... (real_arc_int__kvs__rust_builder)</em></a>, <a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__rust_kvs_api" title="real_arc_int__kvs__rust_kvs_api"><em class="xref need">rust_kvs::kvs_api::KvsApi (real_arc_int__kvs__rust_kvs_api)</em></a>,
+<a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__rust_backend" title="real_arc_int__kvs__rust_backend"><em class="xref need">rust_kvs::kvs_backend::KvsB... (real_arc_int__kvs__rust_backend)</em></a> and <a class="reference internal" href="../architecture/component_architecture.html#real_arc_int__kvs__rust_json_builder" title="real_arc_int__kvs__rust_json_builder"><em class="xref need">rust_kvs::json_backend::Jso... (real_arc_int__kvs__rust_json_builder)</em></a></p></li>
+</ul>
+<p>This document describes the decomposition of the component into units and their interactions.</p>
 <p>Design decisions:</p>
 <ul class="simple">
-<li><p>An instance is created with a builder (<code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code>), which defines the instance ID and whether persisted data
-and default values are required, optional or ignored.</p></li>
+<li><p>An instance is created with a builder (<code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code>), which defines the instance ID, the snapshot to load and
+whether persisted data and default values are required, optional or ignored.</p></li>
 <li><p>All values of an instance are held in memory. Persisted data is loaded on open and written on explicit flush.</p></li>
 <li><p>Each instance is protected by one mutex for thread-safe access (<a class="reference internal" href="../requirements/index.html#comp_req__kvs__concurrency" title="comp_req__kvs__concurrency"><em class="xref need">Concurrency (comp_req__kvs__concurrency)</em></a>).</p></li>
-<li><p>The data is stored as JSON data file with an Adler-32 hash file, snapshots are stored as additional file pairs.</p></li>
+<li><p>The data is stored as JSON data file with an Adler-32 hash file, snapshots are stored as additional file pairs.
+On flush the data and hash file are synchronized to the storage (C++: <code class="docutils literal notranslate"><span class="pre">fdatasync</span></code>, Rust: <code class="docutils literal notranslate"><span class="pre">sync_data</span></code>).</p></li>
 <li><p>Rust: the storage access is encapsulated in the <code class="docutils literal notranslate"><span class="pre">KvsBackend</span></code> trait. The default backend <code class="docutils literal notranslate"><span class="pre">JsonBackend</span></code>
-uses the crates <code class="docutils literal notranslate"><span class="pre">tinyjson</span></code> and <code class="docutils literal notranslate"><span class="pre">adler32</span></code> and the Rust standard library file API.</p></li>
+uses the crates <code class="docutils literal notranslate"><span class="pre">tinyjson</span></code> and <code class="docutils literal notranslate"><span class="pre">adler32</span></code> and the Rust standard library file API. Logging uses <code class="docutils literal notranslate"><span class="pre">score_log</span></code>
+with the context <code class="docutils literal notranslate"><span class="pre">PERS</span></code>.</p></li>
 <li><p>C++: the file system, JSON parser and writer and logger of the S-CORE baselibs are injected into <code class="docutils literal notranslate"><span class="pre">Kvs</span></code>
 as interfaces, which allows testing with mocks.</p></li>
 </ul>
 <p>Design constraints:</p>
 <ul class="simple">
-<li><p>Rust: at most <code class="docutils literal notranslate"><span class="pre">KVS_MAX_INSTANCES</span></code> (10) instances exist per process; <code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code> returns the existing
-instance when an instance ID is opened again.</p></li>
+<li><p>Rust: at most <code class="docutils literal notranslate"><span class="pre">KVS_MAX_INSTANCES</span></code> (10) instances exist per process. <code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code> returns the existing
+instance when an instance ID is opened again with the same options, otherwise <code class="docutils literal notranslate"><span class="pre">InstanceParametersMismatch</span></code>.</p></li>
+<li><p>Rust: the maximum number of snapshots is set in <code class="docutils literal notranslate"><span class="pre">JsonBackendBuilder</span></code> (default 3).</p></li>
 <li><p>C++: the API functions do not wait for the mutex and return <code class="docutils literal notranslate"><span class="pre">MutexLockFailed</span></code> if the instance is locked.</p></li>
+<li><p>C++: keys must not be empty and are limited to <code class="docutils literal notranslate"><span class="pre">KVS_MAX_KEY_LENGTH_BYTES</span></code> (32 bytes).</p></li>
+<li><p>C++: the maximum number of snapshots is limited to <code class="docutils literal notranslate"><span class="pre">KVS_MAX_SNAPSHOTS_UPPER_BOUND</span></code> (3), default
+<code class="docutils literal notranslate"><span class="pre">KVS_DEFAULT_MAX_SNAPSHOTS</span></code> (3). An optional storage limit (<code class="docutils literal notranslate"><span class="pre">max_storage_bytes</span></code>) is checked on flush before the files are written.</p></li>
 </ul>
 <section id="rationale-behind-decomposition-into-units">
 <h3>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h3>
@@ -568,12 +579,16 @@ KVS logic independent of the file system.</p>
 </section>
 <section id="static-diagrams-for-unit-interactions">
 <h2>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h2>
-<p>Rust implementation:</p>
+<p>The static diagrams show the units of the component, their relations and the used libraries. The operations
+of the units are documented in the source code and, for the public interfaces, in the component architecture.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dd_sta__kvs__rust_units</span></code>: units of the Rust implementation. <code class="docutils literal notranslate"><span class="pre">Kvs</span></code> implements <code class="docutils literal notranslate"><span class="pre">KvsApi</span></code> and accesses the
+storage via <code class="docutils literal notranslate"><span class="pre">KvsBackend</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code> creates <code class="docutils literal notranslate"><span class="pre">Kvs</span></code> with <code class="docutils literal notranslate"><span class="pre">JsonBackend</span></code> as default backend.</p>
 <p class="plantuml">
-<object data="../../../_images/plantuml-cb76fa017123436066173bf0db9413203307206b.svg" type="image/svg+xml" style="width:1435px;height:914px;background:#FFFFFF;"></object></p>
-<p>C++ implementation:</p>
+<object data="../../../_images/plantuml-4d033f6678ca695696c63e0ff9af8d18be182667.svg" type="image/svg+xml" style="width:635px;height:756px;background:#FFFFFF;"></object></p>
+<p><code class="docutils literal notranslate"><span class="pre">dd_sta__kvs__cpp_units</span></code>: units of the C++ implementation. <code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code> creates <code class="docutils literal notranslate"><span class="pre">Kvs</span></code>, which uses the
+injected baselibs interfaces and <code class="docutils literal notranslate"><span class="pre">kvs_helper</span></code> for the hash calculation and the conversion of <code class="docutils literal notranslate"><span class="pre">KvsValue</span></code>.</p>
 <p class="plantuml">
-<object data="../../../_images/plantuml-7114559d3b9df3590571f590eb22f9198afa04c8.svg" type="image/svg+xml" style="width:1528px;height:907px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-0b448c4914a8ef10b8e142a7194a75550454f20a.svg" type="image/svg+xml" style="width:1194px;height:509px;background:#FFFFFF;"></object></p>
 </section>
 <section id="dynamic-diagrams-for-unit-interactions">
 <h2>Dynamic Diagrams for Unit Interactions<a class="headerlink" href="#dynamic-diagrams-for-unit-interactions" title="Link to this heading">#</a></h2>
@@ -586,14 +601,14 @@ between the units are direct function calls in the same order, so no additional 
 <p>Rust implementation (<code class="docutils literal notranslate"><span class="pre">score/kvs/rust_kvs</span></code>):</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">kvs_api.rs</span></code>: API definition (<code class="docutils literal notranslate"><span class="pre">KvsApi</span></code> trait, <code class="docutils literal notranslate"><span class="pre">InstanceId</span></code>, <code class="docutils literal notranslate"><span class="pre">SnapshotId</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsDefaults</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsLoad</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kvs.rs</span></code>: implementation of the API (<code class="docutils literal notranslate"><span class="pre">Kvs</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kvs.rs</span></code>: implementation of the API (<code class="docutils literal notranslate"><span class="pre">Kvs</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsParameters</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kvs_builder.rs</span></code>: creation of instances and instance pool (<code class="docutils literal notranslate"><span class="pre">KvsBuilder</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kvs_value.rs</span></code>: value representation (<code class="docutils literal notranslate"><span class="pre">KvsValue</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kvs_serialize.rs</span></code>: conversion of custom types to and from <code class="docutils literal notranslate"><span class="pre">KvsValue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kvs_value.rs</span></code>: value representation (<code class="docutils literal notranslate"><span class="pre">KvsValue</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsMap</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kvs_serialize.rs</span></code>: conversion of custom types to and from <code class="docutils literal notranslate"><span class="pre">KvsValue</span></code> (<code class="docutils literal notranslate"><span class="pre">KvsSerialize</span></code>, <code class="docutils literal notranslate"><span class="pre">KvsDeserialize</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kvs_backend.rs</span></code>: storage backend interface (<code class="docutils literal notranslate"><span class="pre">KvsBackend</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">json_backend.rs</span></code>: JSON storage backend with hash and snapshot files (<code class="docutils literal notranslate"><span class="pre">JsonBackend</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">json_backend.rs</span></code>: JSON storage backend with hash and snapshot files (<code class="docutils literal notranslate"><span class="pre">JsonBackend</span></code>, <code class="docutils literal notranslate"><span class="pre">JsonBackendBuilder</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">error_code.rs</span></code>: error codes (<code class="docutils literal notranslate"><span class="pre">ErrorCode</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log.rs</span></code>: logging with context <code class="docutils literal notranslate"><span class="pre">PERS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log.rs</span></code>: logging macros with context <code class="docutils literal notranslate"><span class="pre">PERS</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kvs_mock.rs</span></code>: mock of the API for tests of users (<code class="docutils literal notranslate"><span class="pre">MockKvs</span></code>)</p></li>
 </ul>
 <p>C++ implementation (<code class="docutils literal notranslate"><span class="pre">score/kvs</span></code>):</p>

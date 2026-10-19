@@ -73,7 +73,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Architecture Inspection Checklist" href="architecture/chklst_arc_inspection.html" />
+    <link rel="next" title="KVS Architecture" href="architecture/index.html" />
     <link rel="prev" title="Component documentation" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -407,17 +407,15 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">KVS (Key Value Store)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="architecture/chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html">Component Architecture KVS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture/index.html">KVS Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detailed_design/index.html">KVS Detailed Design</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kvs.html">Key-Value-Storage (rust_kvs) Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kvs.html">KVS Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="requirements/statistics.html">Component Requirements Statistics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="safety_analysis/aou_requirements.html">AoU Component Requirements KVS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="safety_analysis/fmea.html">Safety Analysis: FMEA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="safety_analysis/dfa.html">Dependent Failure Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="safety_analysis/fmea.html">KVS FMEA (Failure Modes and Effects Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="safety_analysis/dfa.html">KVS DFA (Dependent Failure Analysis)</a></li>
 </ul>
 </details></li>
 </ul>
@@ -482,7 +480,7 @@
                   
   <section id="kvs-key-value-store">
 <span id="component-persistencykvs"></span><h1>KVS (Key Value Store)<a class="headerlink" href="#kvs-key-value-store" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-1cf67594">
+<div class="need_container docutils container" id="SNCB-a56cc265">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__kvs">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -653,30 +651,29 @@ This helps make sure all issues required for the CR to be ready for consideratio
 <p>[A collection of footnotes cited in the CR, and a place to list non-inline hyperlink targets.]</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="architecture/chklst_arc_inspection.html">Architecture Inspection Checklist</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="architecture/chklst_arc_inspection.html#purpose">Purpose</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/chklst_arc_inspection.html#conduct">Conduct</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/chklst_arc_inspection.html#checklist">Checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/index.html">KVS Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html">KVS Component Architecture Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#requirements-linked-to-component-architecture">Requirements Linked to Component Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#description">Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="architecture/component_architecture.html#rationale-behind-architecture-decomposition">Rationale Behind Architecture Decomposition</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="architecture/component_architecture.html">Component Architecture KVS</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html#static-architecture">Static Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html#dynamic-architecture">Dynamic Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/component_architecture.html#interfaces">Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#static-architecture">Static Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#dynamic-architecture">Dynamic Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#interfaces">Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/component_architecture.html#internal-components">Internal Components</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="architecture/index.html">Architecture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#requirements-linked-to-component-architecture">Requirements Linked to Component Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#description">Description</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="architecture/index.html#rationale-behind-architecture-decomposition">Rationale Behind Architecture Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture/chklst_arc_inspection.html">KVS Architecture Inspection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="architecture/chklst_arc_inspection.html#participants">Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture/chklst_arc_inspection.html#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="architecture/chklst_arc_inspection.html#inspected-static-architecture-views">Inspected Static Architecture Views</a></li>
+<li class="toctree-l4"><a class="reference internal" href="architecture/chklst_arc_inspection.html#inspected-dynamic-architecture-views">Inspected Dynamic Architecture Views</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#static-architecture">Static Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#dynamic-architecture">Dynamic Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#interfaces">Interfaces</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture/index.html#internal-components">Internal Components</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="detailed_design/index.html">KVS Detailed Design</a><ul>
@@ -698,12 +695,7 @@ This helps make sure all issues required for the CR to be ready for consideratio
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="kvs.html">Key-Value-Storage (rust_kvs) Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="kvs.html#summary">Summary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kvs.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kvs.html#example">Example</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="kvs.html">KVS Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements/index.html">Requirements</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="requirements/index.html#component-requirements">Component Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="requirements/index.html#assumption-of-use-requirements">Assumption of Use Requirements</a></li>
@@ -727,8 +719,8 @@ This helps make sure all issues required for the CR to be ready for consideratio
 <li class="toctree-l2"><a class="reference internal" href="safety_analysis/aou_requirements.html#component-aou">Component AoU</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="safety_analysis/fmea.html">Safety Analysis: FMEA</a></li>
-<li class="toctree-l1"><a class="reference internal" href="safety_analysis/dfa.html">Dependent Failure Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="safety_analysis/fmea.html">KVS FMEA (Failure Modes and Effects Analysis)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="safety_analysis/dfa.html">KVS DFA (Dependent Failure Analysis)</a></li>
 </ul>
 </div>
 </section>
@@ -754,11 +746,11 @@ This helps make sure all issues required for the CR to be ready for consideratio
       </div>
     </a>
     <a class="right-next"
-       href="architecture/chklst_arc_inspection.html"
+       href="architecture/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Architecture Inspection Checklist</p>
+        <p class="prev-next-title">KVS Architecture</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
