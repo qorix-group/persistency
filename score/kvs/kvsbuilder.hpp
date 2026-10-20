@@ -19,6 +19,20 @@
 
 namespace score::mw::per::kvs
 {
+class KvsInstanceState;
+
+struct KvsInstanceStateRegistry
+{
+    using Entry = std::shared_ptr<KvsInstanceState>;
+    using Array = std::array<Entry, KVS_MAX_INSTANCE_COUNT>;
+
+    /// Protects access to members.
+    std::mutex mutex{};
+    /// Array.
+    Array array{};
+    /// Entry count.
+    std::size_t size{0ul};
+};
 
 /// @brief Builder for opening a KVS object.
 ///
@@ -110,6 +124,10 @@ class KvsBuilder final
     score::Result<Kvs> build() const noexcept;
 
   private:
+    /// @brief Reset the registry.
+    /// @note For test use only.
+    static void ResetRegistry() noexcept;
+
     /// ID of the KVS instance.
     InstanceId instance_id_;
 
@@ -131,6 +149,9 @@ class KvsBuilder final
 
     /// Maximum number of snapshots to maintain.
     std::size_t max_snapshots_;
+
+    /// Registry.
+    static KvsInstanceStateRegistry registry_;
 };
 
 }  // namespace score::mw::per::kvs

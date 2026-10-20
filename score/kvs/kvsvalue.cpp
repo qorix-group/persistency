@@ -31,7 +31,7 @@ KvsValue::KvsValue(const Object& object) noexcept : value_(object) {}
 
 KvsValue::KvsValue(Object&& object) noexcept : value_(std::move(object)) {}
 
-KvsValue::KvsValue(const std::unordered_map<std::string, KvsValue>& object) noexcept
+KvsValue::KvsValue(const KvsMap& object) noexcept
 {
     Object entries;
     entries.reserve(object.size());

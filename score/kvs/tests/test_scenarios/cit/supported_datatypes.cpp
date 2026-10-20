@@ -294,7 +294,7 @@ class SupportedDatatypesValues final : public Scenario
     static Scenario::Ptr supported_datatypes_array()
     {
         // Compose array value as in Rust.
-        std::unordered_map<std::string, KvsValue> obj = {{"sub-number", KvsValue(789.0)}};
+        KvsMap obj = {{"sub-number", KvsValue(789.0)}};
         std::vector<KvsValue> arr = std::vector<KvsValue>{KvsValue(321.5),
                                                           KvsValue(false),
                                                           KvsValue("hello"),
@@ -306,7 +306,7 @@ class SupportedDatatypesValues final : public Scenario
 
     static Scenario::Ptr supported_datatypes_object()
     {
-        std::unordered_map<std::string, KvsValue> obj = {{"sub-number", KvsValue(789.0)}};
+        KvsMap obj = {{"sub-number", KvsValue(789.0)}};
         return std::make_shared<SupportedDatatypesValues>(KvsValue(obj));
     }
 

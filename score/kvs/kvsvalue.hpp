@@ -25,6 +25,10 @@
 
 namespace score::mw::per::kvs
 {
+/// @brief Forward declaration.
+class KvsValue;
+/// @brief Map of keys to their values.
+using KvsMap = std::unordered_map<std::string, KvsValue>;
 
 /// @brief Value that holds a number, boolean, string, null, array or object.
 ///
@@ -129,7 +133,7 @@ class KvsValue final
     explicit KvsValue(Object&& object) noexcept;
 
     /// @brief Constructs a value of type Type::Object from a map.
-    explicit KvsValue(const std::unordered_map<std::string, KvsValue>& object) noexcept;
+    explicit KvsValue(const KvsMap& object) noexcept;
 
     /// @brief Copy constructor.
     KvsValue(const KvsValue& other) noexcept;

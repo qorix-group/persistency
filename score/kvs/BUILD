@@ -31,6 +31,7 @@ cc_library(
         "error.cpp",
         "internal/kvs_helper.cpp",
         "internal/kvs_helper.hpp",
+        "internal/kvs_instance_state.hpp",
         "kvs.cpp",
         "kvsbuilder.cpp",
         "kvsvalue.cpp",

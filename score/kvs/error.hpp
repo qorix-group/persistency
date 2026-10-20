@@ -86,6 +86,9 @@ enum class ErrorCode : score::result::ErrorCode
 
     /// Key is not valid.
     InvalidKey,
+
+    /// The params of an existing instance do not match.
+    InstanceParametersMismatch,
 };
 
 /// @brief Error domain translating `ErrorCode` codes to human-readable messages.

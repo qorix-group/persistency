@@ -67,7 +67,7 @@ TEST(kvs_value_test, get_type_follows_assignment)
 
 TEST(kvs_value_test, map_constructor_yields_object)
 {
-    const std::unordered_map<std::string, KvsValue> map{{"key", KvsValue(true)}};
+    const KvsMap map{{"key", KvsValue(true)}};
     const KvsValue value(map);
 
     ASSERT_EQ(value.getType(), KvsValue::Type::Object);

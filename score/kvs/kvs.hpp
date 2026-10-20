@@ -30,6 +30,10 @@
 
 namespace score::mw::per::kvs
 {
+class KvsInstanceState;
+
+/// @brief Maximum number or instances.
+constexpr std::size_t KVS_MAX_INSTANCE_COUNT{8ul};
 
 /// @brief Maximum allowed key length in bytes.
 /// @note comp_req__kvs__key_length
@@ -121,9 +125,6 @@ enum class OpenJsonNeedFile : std::uint8_t
 class Kvs final
 {
   public:
-    /// @brief Map of keys to their values.
-    using KeyValueMap = std::unordered_map<std::string, KvsValue>;
-
     Kvs(const Kvs&) = delete;
     Kvs& operator=(const Kvs&) = delete;
 
@@ -132,36 +133,6 @@ class Kvs final
 
     /// @brief Move assignment operator.
     Kvs& operator=(Kvs&& other) noexcept;
-
-    /// @brief Opens the key-value store with the specified instance ID and flags.
-    ///
-    /// This function initializes and opens the key-value store (KVS) for a given instance ID.
-    /// It lets the caller specify whether default values and an existing KVS are required or optional.
-    ///
-    /// @note Instead of using Kvs::open() directly, it is recommended to use the KvsBuilder class.
-    ///
-    /// @param instance_id The instance ID of the KVS.
-    /// This uniquely identifies the KVS instance.
-    /// @param snapshot_id The snapshot ID of the KVS.
-    /// This uniquely identifies the KVS snapshot.
-    /// @param need_defaults Whether default values are required, optional or ignored.
-    /// @param need_kvs Whether the KVS data is required, optional or ignored.
-    /// @param dir The directory path where the KVS files are located.
-    /// Use "" or "." for the current directory.
-    /// @param max_storage_bytes Optional maximum total storage size in bytes.
-    /// Pass std::nullopt to enforce no storage limit.
-    /// @param snapshot_max_count The maximum number of snapshots this instance maintains.
-    /// Values above KVS_MAX_SNAPSHOTS_UPPER_BOUND are clamped to it (a warning is logged).
-    /// A value of 0 disables snapshot operations.
-    /// The current KVS data is still persisted by flush().
-    /// @return The opened Kvs object on success, or an ErrorCode on failure.
-    static score::Result<Kvs> open(const InstanceId& instance_id,
-                                   const SnapshotId& snapshot_id,
-                                   const OpenNeedDefaults& need_defaults,
-                                   const OpenNeedKvs& need_kvs,
-                                   const std::string& dir,
-                                   const std::optional<size_t>& max_storage_bytes,
-                                   const std::size_t snapshot_max_count) noexcept;
 
     /// @brief Resets the key-value store to its initial state.
     /// @return Nothing on success, or an ErrorCode on failure.
@@ -297,26 +268,14 @@ class Kvs final
     score::Result<size_t> calculate_potential_size() const noexcept;
 
   private:
+    friend class KvsBuilder;
+
     /// @brief Constructs an empty KVS.
     ///
     /// Private to prevent direct instantiation, use open() instead.
     Kvs() noexcept;
 
-    /// Mutex guarding `kvs_`.
-    mutable std::mutex kvs_mutex_;
-
-    /// Written key-value pairs.
-    KeyValueMap kvs_;
-
-    /// Default values, fixed after open().
-    KeyValueMap default_values_;
-
-    /// Path prefix of the KVS files, including the instance ID.
-    score::filesystem::Path filename_prefix_;
-
-    /// Maximum number of snapshots maintained by this instance.
-    /// @note comp_req__kvs__snapshot_max_num_cfg
-    std::size_t max_snapshots_;
+    std::shared_ptr<KvsInstanceState> state_;
 
     /// Filesystem handler for file operations.
     std::unique_ptr<score::filesystem::Filesystem> filesystem_;
@@ -330,19 +289,15 @@ class Kvs final
     /// Logger of this instance.
     std::unique_ptr<score::mw::log::Logger> logger_;
 
-    /// Maximum storage limit in bytes.
-    /// Unset means no limit is enforced.
-    std::optional<size_t> max_storage_bytes_;
-
     /// @brief Rotates the snapshots, ensuring that the maximum count is maintained.
     score::Result<void> snapshot_rotate() const noexcept;
 
     /// @brief Parses JSON data into a map of key-value pairs.
-    score::Result<KeyValueMap> parse_json_data(const std::string& data) const noexcept;
+    score::Result<KvsMap> parse_json_data(const std::string& data) const noexcept;
 
     /// @brief Opens a JSON file, verifies its hash and returns its contents as a map of key-value pairs.
-    score::Result<KeyValueMap> open_json(const score::filesystem::Path& prefix,
-                                         const OpenJsonNeedFile need_file) const noexcept;
+    score::Result<KvsMap> open_json(const score::filesystem::Path& prefix,
+                                    const OpenJsonNeedFile need_file) const noexcept;
 
     /// @brief Writes the provided data to the current JSON file and its hash file.
     score::Result<void> write_json_data(const std::string& buf) const noexcept;

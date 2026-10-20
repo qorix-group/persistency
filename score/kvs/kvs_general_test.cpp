@@ -51,6 +51,8 @@ void store(const std::string& filePath, const std::string& hashPath, const std::
 /// @brief Creates the test environment with default data, which is needed in most test cases.
 void prepare_environment()
 {
+    KvsBuilder::ResetRegistry();
+
     // Prepare the test environment.
     mkdir(data_dir.c_str(), 0777);
 
@@ -70,6 +72,8 @@ void cleanup_environment()
 
 void cleanup_environment(const std::string& dir)
 {
+    KvsBuilder::ResetRegistry();
+
     // Cleanup the test environment.
     if (std::filesystem::exists(dir))
     {
