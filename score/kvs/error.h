@@ -30,9 +30,11 @@ enum class ErrorCode : score::result::ErrorCode
     kFileNotFound = 1,
 
     /// KVS file read error.
+    // TODO: to be renamed to `kFileReadError`.
     kKvsFileReadError = 2,
 
     /// KVS hash file read error.
+    // TODO: to be dropped.
     kKvsHashFileReadError = 3,
 
     /// JSON parser error.
