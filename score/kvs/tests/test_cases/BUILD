@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_python//python:defs.bzl", "py_library")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
 # Referenced by //:sbom (python_lockfiles).
@@ -25,18 +26,16 @@ exports_files(
 # `bazel run //score/kvs/tests/test_cases:requirements.update -- --upgrade`.
 compile_pip_requirements(
     name = "requirements",
-    srcs = [
-        "requirements.txt",
-        # Keeps pytest aligned with the version score_pytest ships.
-        "@score_tools//score_pytest:requirements_py312.txt",
-    ],
+    srcs = ["requirements.txt"],
     requirements_txt = "requirements.txt.lock",
     tags = [
         "manual",
     ],
 )
 
-filegroup(
+# Test sources of the integration_test targets.
+# A py_library (not a filegroup) keeps them in reach of the ruff lint aspect.
+py_library(
     name = "cit_files",
     srcs = glob(["tests/**/*.py"]) + ["test_properties.py"],
     visibility = [

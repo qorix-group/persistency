@@ -138,7 +138,11 @@ To run Component / Feature Integration Tests:
 
 .. code-block:: bash
 
-   bazel test //:cit_tests
+   bazel test --config=score-linux-x86_64 //:cit_tests
+   bazel test --config=score-qnx-x86_64 //:cit_tests
+
+The tests run with `ITF <https://github.com/eclipse-score/itf>`_ on a target system:
+a Docker container on Linux (requires Docker), a QEMU VM on QNX (requires ``qemu-system-x86_64`` and KVM).
 
 
 Module Build Configuration

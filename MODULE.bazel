@@ -48,8 +48,11 @@ bazel_dep(name = "score_coverage", version = "0.4.2", dev_dependency = True)
 bazel_dep(name = "aspect_rules_lint", version = "2.5.2", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1.3", dev_dependency = True)
 bazel_dep(name = "googletest", version = "1.18.0", dev_dependency = True)
+bazel_dep(name = "rules_oci", version = "2.2.7", dev_dependency = True)
+bazel_dep(name = "rules_pkg", version = "1.2.0", dev_dependency = True)
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.5", dev_dependency = True)
 bazel_dep(name = "score_cpp_policies", version = "0.1.2", dev_dependency = True)
+bazel_dep(name = "score_itf", version = "0.6.0", dev_dependency = True)
 bazel_dep(name = "score_sbom", version = "0.1.1", dev_dependency = True)
 bazel_dep(name = "score_rules_imagefs", version = "0.1.0", dev_dependency = True)
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
@@ -72,6 +75,18 @@ pip.parse(
     requirements_lock = "//score/kvs/tests/test_cases:requirements.txt.lock",
 )
 use_repo(pip, "pip_score_persistency_venv_test")
+
+# Base image of the Docker target used by the integration tests
+# (see //quality/integration_testing).
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
+oci.pull(
+    name = "ubuntu_24_04",
+    digest = "sha256:2e863c44b718727c860746568e1d54afd13b2fa71b160f5cd9058fc436217b30",
+    image = "ubuntu",
+    platforms = ["linux/amd64"],
+    tag = "24.04",
+)
+use_repo(oci, "ubuntu_24_04", "ubuntu_24_04_linux_amd64")
 
 # C++ toolchain configuration
 # score_bazel_cpp_toolchains 1.0.0 removed its built-in warning features; inject them instead.
